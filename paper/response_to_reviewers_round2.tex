@@ -1,0 +1,241 @@
+\documentclass[10pt]{article}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\newcommand{\rev}[1]{\par\medskip\noindent\textbf{Reviewer comment #1}\par}
+\newcommand{\resp}{\par\noindent\textcolor{blue!50!black}{\textbf{Response.}}~}
+\newcommand{\chg}{\par\noindent\textcolor{green!35!black}{\textbf{Changes.}}~}
+
+\begin{document}
+\sloppy
+
+\begin{center}
+{\Large\bfseries Response to the Reviewer --- Second Round}\\[4pt]
+Manuscript: \emph{Mission-Driven Corner-Speed Design of a Low-Voltage Switched Reluctance Motor Drive for Electric Bicycles}\\
+(previous title: \emph{Corner-Speed-Based Design and Optimization of a Switched Reluctance Motor Drive for Low-Voltage Electric Bicycles})\\[2pt]
+Subrahmanyam Tanala
+\end{center}
+
+I thank the reviewer for a second careful review and for the clear priority
+list in comment~27. Every critical item and every highly recommended item has
+been addressed. Prototype measurements are still not available, and the paper
+states this throughout. The main additions are:
+\begin{enumerate}[nosep]
+\item \textbf{Battery voltage.} Battery-voltage sensitivity (30/36/42~V) and a
+battery equivalent-circuit model (OCV(SOC), internal resistance, sag) in the
+route simulation (Section~VI-E, Table~XI, Eq.~(17)).
+\item \textbf{Iron loss.} An iron-loss uncertainty analysis ($\times0.7$ and
+$\times1.3$) covering efficiency and route energy (Section~VI-F, Table~XII).
+\item \textbf{Coupled-phase check.} Three-phase coupled FE solves at the launch,
+200-r/min current-reference, 200-r/min TSF and rated points (Section~IV-D,
+Fig.~5).
+\item \textbf{Missions.} Three standardized missions (flat urban, hilly urban,
+aggressive) (Section~VIII, Table~XVI).
+\item \textbf{Corner-speed rule.} A quantitative test over the nine designs
+(regression) and over 24/36/48-V redesigns (Section~IX, Fig.~15).
+\item \textbf{PM benchmark.} An equal-envelope, equal-boundary analytic
+surface-PM benchmark (Section~X-C, Table~XXI). Its result does not favor the
+SRM on efficiency, and it is reported as it stands.
+\item \textbf{Wording and metadata.} Terminology, novelty claim, ripple
+definition, metadata and reproducibility were all corrected.
+\end{enumerate}
+Table and section numbers refer to the revised manuscript.
+
+%---------------------------------------------------------------------------
+\rev{1--4 (strengths; topology wording)}
+\resp We thank the reviewer. Following comment~3, Section~III-A now states that
+the 12/8 machine ``is selected under the stated envelope, frequency, converter
+and performance constraints; it is not the result of a global topology
+optimization''.
+
+\rev{5 (``FE validation'' terminology)}
+\resp Agreed and corrected throughout. ``Validation'' is now reserved for
+comparison with measurements. The FE comparison is called ``FE-based numerical
+verification'' or ``comparison with nonlinear FE'' (title of Section~IV,
+Section~III-E, the conclusion). The word ``validated'' no longer refers to FE
+anywhere in the manuscript.
+
+\rev{6--7 (FE modelling; coupled-phase check for TSF)}
+\resp Done. For four operating points we applied the three simulated phase
+currents \emph{simultaneously} in the FE model at 24 rotor positions over one
+stroke, so that mutual coupling and shared-yoke saturation are included. We
+then compared the result with the uncoupled table model used in the drive
+simulation:
+\begin{itemize}[nosep]
+\item launch, current-reference: mean torque $+0.7$\%; ripple 55.7\%
+$\rightarrow$ 54.2\%;
+\item 200~r/min, 3~N$\cdot$m, current-reference: mean torque $-0.03$\%;
+ripple unchanged (194\%);
+\item 200~r/min, 3~N$\cdot$m, cubic TSF: mean torque $-0.5$\%; ripple 6.4\%
+$\rightarrow$ 7.3\% at the same 24 sampling points;
+\item rated, current-reference: mean torque $-1.5$\%; ripple 86.0\%
+$\rightarrow$ 87.8\%.
+\end{itemize}
+The TSF ripple reduction therefore survives coupling. The method is
+current-imposed: the uncoupled current waveforms are applied, which is
+realistic under hysteresis current control at low speed.
+Coupling changes mean torque by at most 1.5\% and ripple by at most 1.8
+points.
+\chg Section~IV-D (new paragraph, Table~VII, Fig.~5), Section~VII, the
+limitations, the abstract and the conclusion.
+
+\rev{8--9 (predictions; launch efficiency)}
+\resp Every efficiency, torque, temperature and range figure is now explicitly
+labeled as a prediction (abstract, Sections~VI--VIII, conclusion). After the
+ripple definition, Section~VI-A adds a paragraph explaining that the 15.9\%
+launch efficiency arises because the output is only 54~W while copper loss is
+set by the 29-A launch current. It is a short-duration, torque-dominated
+condition and not representative of steady-state riding. Its thermal
+consequence is quantified in Section~VI-H.
+
+\rev{10 (thermal results are not validated)}
+\resp Agreed. The subsection is renamed \emph{Predicted Thermal Envelope} and
+opens with: ``The temperatures in this subsection are predictions of an
+uncalibrated lumped-parameter model and define a predicted thermal envelope,
+not validated temperature rises.''
+
+\rev{11--12 (TSF; torque-ripple metric)}
+\resp The ripple metric is now defined mathematically as Eq.~(16):
+$\Delta T=(\max T_e-\min T_e)/\bar T_e\times100\%$ over one electrical period.
+The definition appears where ripple is first quoted (Section~VI-A), together
+with a note that any waveform touching zero once per stroke gives
+$\Delta T\geq100$\%.
+
+\rev{13 (single synthetic route)}
+\resp Done. Three standardized missions are now evaluated: flat urban (6.4~km),
+hilly urban (6.4~km) and aggressive (5.4~km, 6--10\% climbs). Predicted
+consumption is 2.5, 5.1 and 10.9~Wh/km (Table~XVI). Section~VIII states that
+``a single route figure must not be read as a general consumption prediction''.
+
+\rev{14--15 (battery sag; voltage sensitivity)}
+\resp Done in two parts.
+\begin{enumerate}[nosep]
+\item \textbf{Voltage table.} Table~XI repeats the FE-based analysis at 30, 36
+and 42~V, as requested. The launch current (26.5~A) and launch torque do not
+depend on voltage. The maximum torque at 25~km/h falls from 4.59 to
+2.91~N$\cdot$m at 30~V, which is still about twice the rated torque. The
+electrical rated-torque speed limit is 42, 55 and 68~km/h. Rated $\eta_{sys}$
+is 77.0, 77.9 and 78.8\%.
+\item \textbf{Battery model.} A battery equivalent circuit (Eq.~(17):
+representative 10S NMC OCV(SOC) curve, $R_b=0.15~\Omega$) drives
+voltage-interpolated FE maps along the missions. Sag changes consumption at the
+battery terminals by less than 3\%, and internal battery loss adds 1.5--4\%.
+On the aggressive mission at 20\% SOC the loaded voltage reaches 29.8~V, which
+touches the controller cut-off.
+\end{enumerate}
+The estimated range to cut-off with sag is 142, 68 and 32~km for the three
+missions.
+
+\rev{16 (battery ripple tolerance claim)}
+\resp The unsupported claim is removed. The text now quantifies the internal
+heating instead (2.9--6.9~W for the few seconds of a launch). It states that
+acceptability over the pack life must be checked against the cell
+manufacturer's ripple-current specification.
+
+\rev{17 (no prototype)}
+\resp Prototype data are still not available. The paper is framed as an
+analytical, FE and system-simulation methodology. The new title says
+``Mission-Driven \ldots Design'', and the abstract, introduction, limitations
+and conclusion all state that no prototype has been measured.
+
+\rev{18 (PM benchmark)}
+\resp Done (Section~X-C, Table~XXI). We sized a first-order analytic surface-PM
+machine (12-slot/10-pole, N42SH) to the same mission, envelope, gear, battery,
+MOSFETs, iron-loss coefficients, mechanical loss, efficiency boundary and route
+model. Its turns follow the same voltage logic as the SRM. Because it matches
+the fidelity of the SRM's analytical model, both SRM models are tabulated. The
+result is not favorable to the SRM on efficiency:
+\begin{itemize}[nosep]
+\item the SPM is about 12 points more efficient at the rated point (90.2\%
+against 77.9--78.8\%) and far better at launch;
+\item it uses 4\% and 20\% less energy on the hilly and aggressive missions;
+\item the SRM uses 18\% less on the flat light-assist mission, because the
+SPM's load-independent magnet-driven iron loss dominates at light load;
+\item the SPM also dissipates about 20~W when coasting without a freewheel
+clutch.
+\end{itemize}
+We report this as it stands and revised the positioning accordingly. The
+SRM's case rests on cost, magnet-free supply chain, robustness and light-assist
+use, not on peak efficiency.
+
+\rev{19 (quantitative test of the corner-speed rule)}
+\resp Done (Section~IX, Fig.~15), as requested.
+\begin{itemize}[nosep]
+\item \textbf{Mass.} A linear fit of required current against active mass over
+the nine designs (3.9-fold mass range) gives a slope of $-0.06$~A/kg
+($-0.2$\%/kg) and $R^2=0.004$, so there is no mass dependence.
+\item \textbf{Loop factor.} $k_c=0.60\pm0.03$ (range 0.54--0.66). The rule
+$P_c/(\bar k_cV)$ reproduces every design to within 10.3\%.
+\item \textbf{Voltage.} Redesigning the frame for 24-, 36- and 48-V packs gives
+$I_{pk}\propto V^{-1.002}$ with $k_c=0.59$--$0.60$, which tests the voltage
+dependence directly.
+\end{itemize}
+
+\rev{20 (broad novelty claim)}
+\resp Narrowed exactly as suggested: ``To the author's knowledge, the
+combination of mission-derived corner-speed turn selection, FE-based current
+sizing, and converter, thermal and control evaluation has not been reported
+systematically for a 250-W, 36-V geared SRM pedelec drive.''
+
+\rev{21 (placeholder metadata)}
+\resp Corrected. The author block and affiliation are complete, and the running
+head no longer contains a placeholder volume, issue or date. Reference~[20]
+now cites the author.
+
+\rev{22 (repository reproducibility)}
+\resp The code reference now cites a tagged release (v2.0-rev2) of the public
+repository. The repository contains:
+\begin{itemize}[nosep]
+\item the source code, FE scripts and all result data (JSON, NPZ);
+\item a pinned environment (\texttt{requirements-lock.txt}: Python 3.11.15,
+NumPy 2.4.6, SciPy 1.17.1, Matplotlib 3.11.2, scikit-fem 12.0.2, gmsh 4.15.2,
+TeX Live 2023);
+\item a \texttt{CITATION.cff} file;
+\item step-by-step reproduction instructions in the README;
+\item 31 automated tests.
+\end{itemize}
+\emph{[Note to author: a Zenodo DOI can be minted from the GitHub release; add
+it to reference~[20] once created.]}
+
+\rev{23 (air-gap qualification)}
+\resp Kept. The tolerance allocation remains labeled ``assumed design budget,
+not measured''.
+
+\rev{24 (iron-loss sensitivity)}
+\resp Done (Table~XII). Scaling the iron-loss model by 0.7 and 1.3, with
+operating points re-optimized, moves rated efficiency by about $\pm$2 points
+($\eta_{sys}$ 75.9--79.9\%) and route consumption by $-4$\% to $+5$\%. The
+paper now identifies iron loss as the second-largest remaining uncertainty.
+
+\rev{25 (acoustic noise)}
+\resp Added to the limitations: ``Acoustic noise and radial-force vibration are
+outside the present modeling scope, and no claim is made that the design is
+acoustically acceptable.''
+
+\rev{28 (title)}
+\resp Adopted the reviewer's preferred title: \emph{Mission-Driven Corner-Speed
+Design of a Low-Voltage Switched Reluctance Motor Drive for Electric Bicycles}.
+
+\rev{(additional correction made by the author)}
+\resp While running the coupled-phase solves, we found that the FE solver
+reused the previous solution as its starting point whenever the node count
+matched, even when the rotor position, and therefore the mesh, had changed. A
+converged Newton solution does not depend on its starting point, so all
+previously reported FE results are unaffected. We confirmed this by re-solving
+the air-gap study, which reproduces the reported values exactly. However, one
+coupled solve diverged. The solver now warm-starts only on the same mesh and
+falls back to a damped cold start.
+
+\bigskip
+All results can be regenerated from tag v2.0-rev2 of the repository
+(\texttt{scripts/run\_fea.py}, \texttt{run\_revision.py},
+\texttt{run\_revision2.py}).
+
+\end{document}

@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "SRM e-bike drive design toolchain: mission-driven corner-speed design, 2-D FE verification and drive simulation"
+authors:
+  - family-names: Tanala
+    given-names: Subrahmanyam
+    affiliation: "Department of Electrical and Electronics Engineering, Anil Neerukonda Institute of Technology and Sciences (ANITS), Visakhapatnam, India"
+version: "2.0-rev2"
+date-released: 2026-10-04
+repository-code: "https://github.com/subrahmanyamtanala-rgb/Analysis-and-Design-Considerations-for-a-srm-based-electric-drive"

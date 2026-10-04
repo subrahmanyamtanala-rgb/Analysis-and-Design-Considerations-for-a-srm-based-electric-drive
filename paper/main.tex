@@ -15,44 +15,43 @@
 
 \begin{document}
 
-\title{Corner-Speed-Based Design and Optimization of a Switched Reluctance Motor Drive for Low-Voltage Electric Bicycles}
+\title{Mission-Driven Corner-Speed Design of a Low-Voltage Switched Reluctance Motor Drive for Electric Bicycles}
 
-% TODO: replace with the actual author list, affiliations and funding note.
-\author{First~A.~Author,~\IEEEmembership{Member,~IEEE,}
-        Second~B.~Author,
-        and~Third~C.~Author%
-\thanks{Manuscript received XXXX; revised XXXX.}%
-\thanks{The authors are with the Department of Electrical and Electronics Engineering, XXXX, India (e-mail: author@institution.edu).}%
-\thanks{Source code, FE scripts and all data used in this paper are available at \url{https://github.com/subrahmanyamtanala-rgb/Analysis-and-Design-Considerations-for-a-srm-based-electric-drive}.}}
+\author{Subrahmanyam~Tanala%
+\thanks{S.~Tanala is with the Department of Electrical and Electronics Engineering, Anil Neerukonda Institute of Technology and Sciences (ANITS), Visakhapatnam, Andhra Pradesh, India (e-mail: subrahmanyam.eee@anits.edu.in).}%
+\thanks{Source code, FE scripts and all data used in this paper are available at \url{https://github.com/subrahmanyamtanala-rgb/Analysis-and-Design-Considerations-for-a-srm-based-electric-drive} (tag v2.0-rev2).}}
 
-\markboth{IEEE Transactions on Transportation Electrification,~Vol.~XX, No.~X, Month~2026}%
-{Author \MakeLowercase{\textit{et al.}}: Corner-Speed-Based Design of an SRM Drive for Low-Voltage Electric Bicycles}
+\markboth{Submitted to IEEE Transactions on Transportation Electrification}%
+{Tanala: Mission-Driven Corner-Speed Design of a Low-Voltage SRM Drive for Electric Bicycles}
 
 \maketitle
 
 \begin{abstract}
-This paper presents an analytical, finite-element and simulation-based design
-methodology for a switched reluctance motor (SRM) drive for a 250-W, 25-km/h
-pedelec supplied from a 36-V battery. The vehicle mission is translated into
-motor torque--speed requirements. The phase turns are then chosen at a
-\emph{corner speed} rather than at the assist cut-off speed, which is
-formalized by the relation $P_c=k_cV_{dc}I_{pk}$. We position this relation
-with respect to the classical converter volt-ampere argument and show,
-across nine designs, that the peak phase current is set by the battery voltage
-and the corner power and depends only weakly on machine size. A 12/8 machine
-is sized analytically. Its flux-linkage and torque characteristics are then
-computed with a nonlinear 2-D finite-element (FE) model, which quantifies the
-errors of the analytical model (up to 23\% in flux linkage and 17\% in mean
-torque) and the mutual coupling between phases (below 7\%). The FE
-characteristic is used in a time-domain model of an asymmetric half-bridge drive
-with optimized commutation angles. The resulting $\varnothing$135-mm,
-3.4-kg (active) machine with an 8:1 gear meets the 5.93-N$\cdot$m launch torque
-at 26.5~A with an 11.6\% margin. It reaches a predicted 80.2\% motor and 77.9\%
-battery-to-shaft efficiency at the rated point and an estimated 5.1~Wh/km on a
-hilly urban route. Cubic torque-sharing control reduces torque ripple from
-about 197\% to 10--33\% below 500~r/min, at the cost of 7--12 efficiency
-points. Sensitivity studies cover PWM frequency, the thermal network, gear
-efficiency, DC-link sizing, air-gap tolerance and pole arcs. No prototype
+This paper presents an analytical, finite-element (FE) and simulation-based
+design methodology for a switched reluctance motor (SRM) drive for a 250-W,
+25-km/h pedelec supplied from a 36-V battery. The vehicle mission is translated
+into motor torque--speed requirements, and the phase turns are chosen at a
+mission-derived \emph{corner speed} rather than at the assist cut-off speed.
+The resulting relation $P_c=k_cV_{dc}I_{pk}$, a sizing form of the classical
+converter volt-ampere argument, is tested quantitatively. Across nine designs
+spanning a 3.9-fold range of active mass, the required peak current shows no
+mass dependence ($R^2=0.004$) and $k_c=0.60\pm0.03$. Across 24-, 36- and 48-V
+redesigns, the current scales as $V^{-1.00}$. A 12/8 machine is sized
+analytically and its characteristics are computed with a nonlinear 2-D FE
+model. This numerical verification shows errors of the analytical model of up
+to 23\% in flux linkage and 17\% in mean torque, so FE tables are used for all
+drive-level predictions. Three-phase FE solves confirm that mutual coupling
+changes mean torque by at most 1.5\%. The predicted performance of the
+$\varnothing$135-mm, 3.4-kg (active) machine with an 8:1 gear is as follows. It
+meets the 5.93-N$\cdot$m launch torque at 26.5~A with an 11.6\% margin at any
+battery voltage between 30 and 42~V. It reaches 80.2\% motor and 77.9\%
+battery-to-shaft efficiency at the rated point and consumes 2.5--10.9~Wh/km on
+flat, hilly and aggressive missions. Cubic torque-sharing control cuts torque
+ripple from about 197\% to 10--33\% below 500~r/min, at a cost of 7--12
+efficiency points. An equal-envelope analytic surface-PM benchmark is about
+12 points more efficient at the rated point and uses less energy on hilly and
+aggressive missions. The SRM uses less energy on the flat light-assist
+mission, needs no magnets and has no drag when coasting. No prototype
 measurements are reported, and all performance figures are model predictions.
 \end{abstract}
 
@@ -88,24 +87,27 @@ designed, built and tested a 6/10 SRM for a mid-drive replacing a commercial PM
 machine~\cite{terzic2022}. The \mbox{250-W}, 36-V hub-drive regime combines a
 severe volt-second limit, a launch torque about four times the rated torque, a
 pancake hub envelope and a mission dominated by part-load cruising. To the
-authors' knowledge, no published work treats this regime systematically from
-the vehicle mission to the converter.
+author's knowledge, the combination of mission-derived corner-speed turn
+selection, FE-based current sizing, and converter, thermal and control
+evaluation has not been reported systematically for a 250-W, 36-V geared SRM
+pedelec drive.
 
 This paper contributes the following:
 \begin{enumerate}
-\item A corner-speed rule for choosing the turns of a low-voltage SRM. Its
-consequence $P_c=k_cV_{dc}I_{pk}$ is positioned relative to established
-volt-second and converter volt-ampere arguments, and is verified over nine
-machine designs.
-\item A mission-to-converter design flow that combines analytical sizing with a
-nonlinear 2-D FE model, FE-based current sizing and commutation-angle
-optimization. The analytical model's errors are quantified against FE.
+\item A mission-driven corner-speed rule for choosing the turns of a
+low-voltage SRM. Its consequence $P_c=k_cV_{dc}I_{pk}$ is positioned relative
+to established volt-second and converter volt-ampere arguments and is tested
+quantitatively against mass (nine designs) and design voltage (24/36/48~V).
+\item A mission-to-converter design flow that combines analytical sizing with
+nonlinear 2-D FE numerical verification (including three-phase coupled solves),
+FE-based current sizing and commutation-angle optimization.
 \item FE-based performance, loss, converter, DC-link and transient thermal
-assessments, with sensitivity to PWM frequency, gear efficiency, heat-transfer
-coefficient, ambient temperature, air gap and pole arcs.
+predictions, with sensitivity to battery voltage and state of charge, iron-loss
+model, PWM frequency, gear efficiency, heat-transfer coefficient, ambient
+temperature, air gap and pole arcs, evaluated on three standardized missions.
 \item A quantified comparison of current-reference and torque-sharing-function
-(TSF) control for this drive, showing where TSF is feasible at 36~V and what
-it costs in efficiency.
+(TSF) control, and an equal-envelope, equal-boundary comparison with an analytic
+surface-PM benchmark.
 \end{enumerate}
 The scope is deliberately limited to analysis, FE simulation and system
 simulation. No hardware results are reported, and all efficiency, range and
@@ -223,8 +225,8 @@ Under the assumptions of \eqref{eq:invariant}, which are a one-stroke dwell, a
 fixed $V_{dc}$, the chosen corner power and a similar $k_c$, choosing the turns
 for full launch torque at the 25-km/h base speed would instead require
 $P_c=T_{pk}\omega_b\approx1$~kW. This is twice the corner power, and therefore
-approximately twice the peak current. The simulations of Section~\ref{sec:trade}
-give $k_c=0.54$--$0.66$ across nine design variants.
+approximately twice the peak current. Section~\ref{sec:trade} tests the rule
+quantitatively and finds $k_c=0.60\pm0.03$ across nine design variants.
 
 \subsection{Relationship to Existing Volt-Second and Energy-Based Methods}
 \label{sec:novelty}
@@ -249,8 +251,9 @@ What this paper adds is how the relation is used, which matters at low voltage:
 \item Rearranged as $I_{pk}=P_c/(k_cV_{dc})$, the relation shows that the converter
 current is fixed before the machine is sized, and that enlarging the machine
 reduces copper loss but not current. Section~\ref{sec:trade} confirms this
-quantitatively: $I_{pk}$ varies by only 22\% over a fourfold range of active
-mass.
+quantitatively: the required current shows no mass dependence over a
+3.9-fold range of active mass and scales as $V_{dc}^{-1.00}$ when the design
+voltage is changed.
 \item $k_c$ is reported for this machine class, which allows a first converter
 rating directly from vehicle data.
 \end{itemize}
@@ -259,7 +262,9 @@ rating directly from vehicle data.
 
 \subsection{Pole Configuration}
 Table~\ref{tab:poles} compares candidate configurations at the maximum speed.
-The 12/8 machine has the same number of strokes per revolution as the
+The 12/8 machine is selected under the stated envelope, frequency, converter
+and performance constraints; it is not the result of a global topology
+optimization. It has the same number of strokes per revolution as the
 four-phase 8/6 but needs only six switches. Its two pole pairs per phase
 balance the radial forces and shorten the flux paths, which suits the short,
 large-diameter hub envelope. Its phase frequency (257~Hz) keeps iron losses
@@ -394,9 +399,9 @@ $k_{ew}=1.35$:
 \frac{L_u}{L_a} = \frac{k_{ew}}{k_{fe}}\left(\frac{g}{g+h_r}+\frac{g}{l_s}\right).
 \label{eq:Lu}
 \end{equation}
-These estimates are validated against FE in Section~\ref{sec:fea}.
+These estimates are compared with nonlinear FE in Section~\ref{sec:fea}.
 
-\section{Electromagnetic Modeling and FE Validation}
+\section{Electromagnetic Modeling and FE-Based Numerical Verification}
 
 \subsection{Analytical Saturable Flux-Linkage Model}
 For fast design iteration, the aligned magnetization curve is represented by an
@@ -518,10 +523,50 @@ Mutual coupling was evaluated by FE with phases A and B excited simultaneously
 phase changes $\psi_A$ by at most 7.2\%. The torque differs from the
 superposition of single-phase torques by at most 0.36~N$\cdot$m (6.9\%). The
 largest deviations, up to 0.65~N$\cdot$m, occur for current combinations that
-the controller does not produce. Neglecting mutual coupling therefore causes a
-torque error of the order of 5--7\% during phase overlap. This matters most for
-TSF control (Section~\ref{sec:tsf}), and the TSF ripple figures should be read
-with this uncertainty in mind.
+the controller does not produce. These static tests bound the instantaneous error during phase overlap at about
+5--7\%.
+
+To quantify the effect on drive-level results, the three phase currents from
+the (uncoupled) drive simulation were applied \emph{simultaneously} in the FE
+model at 24 rotor positions over one stroke. Mutual coupling and shared-yoke
+saturation are then included, and the torque was compared with the uncoupled
+FE-table torque at the same positions (Table~\ref{tab:coupled},
+Fig.~\ref{fig:coupled}). Coupling changes the mean torque by $-1.5$\% to
+$+0.7$\% and the ripple by at most 1.8 percentage points. The low ripple of the
+TSF is preserved (7.3\% coupled against 6.4\% uncoupled at these sampling
+points). The check is current-imposed, which is realistic under hysteresis
+current control at low speed. In single-pulse operation, coupling would also
+alter the current slightly, an effect not captured here. The uncoupled drive
+model is therefore adequate for the predictions in this paper.
+
+\begin{table}[!t]
+\caption{Coupled Three-Phase FE Versus Uncoupled Model (24 Positions per Stroke)}
+\label{tab:coupled}
+\centering
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{l c c c c}
+\hline
+Operating point & $\bar T$ uncoupled & $\bar T$ coupled & $\Delta T$ uncoupled & $\Delta T$ coupled\\
+ & (N$\cdot$m) & (N$\cdot$m) & (\%) & (\%)\\
+\hline
+Launch, 80 r/min, CCC & 6.64 & 6.69 & 55.7 & 54.2\\
+200 r/min, 3 N$\cdot$m, CCC & 3.00 & 3.00 & 193.8 & 193.7\\
+200 r/min, 3 N$\cdot$m, cubic TSF & 3.00 & 2.99 & 6.4 & 7.3\\
+Rated, 1608 r/min, CCC & 1.48 & 1.46 & 86.0 & 87.8\\
+\hline
+\end{tabular}}
+\end{table}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{fig_coupled}
+\caption{Total torque over one stroke from the uncoupled FE-table model and from
+coupled three-phase FE solves with the same phase currents: (a) current-reference
+control, (b) cubic TSF, both at 200~r/min and 3~N$\cdot$m.}
+\label{fig:coupled}
+\end{figure}
 
 \subsection{Converter and Circuit Model}
 Each phase obeys $d\psi/dt = v-R_{ph}i$, with the converter imposing
@@ -635,9 +680,25 @@ Fig.~\ref{fig:waveforms} shows the steady-state waveforms. At launch
 (80~r/min), soft chopping holds the current at 29.2~A, and the mean torque is
 6.63~N$\cdot$m. This exceeds the 5.93-N$\cdot$m requirement by 11.6\%. At the
 rated point (1608~r/min) the turn-on angle is advanced to $-2.9^\circ$ and the
-drive operates essentially in single-pulse mode. The peak-to-peak torque ripple
-with current-reference control is 60\% at launch and 87\% at the rated point.
-Section~\ref{sec:tsf} addresses the ripple.
+drive operates essentially in single-pulse mode. Throughout this paper,
+torque ripple is the peak-to-peak value normalized to the mean,
+\begin{equation}
+\Delta T=\frac{\max_\theta T_e(\theta)-\min_\theta T_e(\theta)}{\bar T_e}\times100\%,
+\label{eq:ripple}
+\end{equation}
+evaluated over one electrical period of the total torque $T_e$. With this
+definition a waveform that touches zero once per stroke has
+$\Delta T\geq100$\%, which explains the large values for current-reference
+control. The ripple with current-reference control is 60\% at launch and 87\%
+at the rated point; Section~\ref{sec:tsf} addresses it.
+
+The launch efficiency in Table~\ref{tab:ops} (17.7\% motor, 15.9\% system) is
+low because the output power at 80~r/min is only 54~W while the copper loss is
+set by the 29-A launch current. This is a short-duration, torque-dominated
+condition (a few seconds per start) and is not representative of
+steady-state riding; its thermal consequence is evaluated in
+Section~\ref{sec:thermal}, and the continuous operating points are the hill,
+rated and cruise points.
 
 \begin{figure*}[!t]
 \centering
@@ -759,6 +820,93 @@ Rated $\eta_{sys}$ (\%) & 77.9 & 77.8 & 77.9 & 77.9 & 78.0\\
 \end{tabular}
 \end{table}
 
+\subsection{Battery-Voltage Sensitivity}
+\label{sec:battery}
+The 10S pack spans 30--42~V between cut-off and full charge, and the turns were
+chosen at 30~V. Table~\ref{tab:vdc} repeats the FE-based analysis at 30, 36 and
+42~V with the same converter limit.
+\begin{itemize}
+\item The launch current (26.5~A) and launch torque at $I_{max}$ (6.63~N$\cdot$m)
+do not depend on voltage, because back-EMF is negligible at 80~r/min.
+\item The voltage-limited capability does depend on voltage. At 25~km/h the
+maximum torque falls from 4.59~N$\cdot$m at 42~V to 2.91~N$\cdot$m at 30~V
+(490~W). This is still about twice the rated torque, so full assistance up to
+the cut-off is preserved at end of discharge.
+\item Rated efficiency changes by less than one point per 6~V.
+\end{itemize}
+
+\begin{table}[!t]
+\caption{DC-Link Voltage Sensitivity (FE Characteristic, $I_{max}=29.2$ A)}
+\label{tab:vdc}
+\centering
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{4pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{l c c c}
+\hline
+$V_{dc}$ (V) & 30 & 36 & 42\\
+\hline
+Current for launch torque (A) & 26.5 & 26.5 & 26.5\\
+Launch torque at $I_{max}$ (N$\cdot$m) & 6.63 & 6.63 & 6.64\\
+Max.\ torque at 25 km/h (N$\cdot$m) & 2.91 & 3.95 & 4.59\\
+Max.\ power at 25 km/h (W) & 490 & 664 & 772\\
+Speed at which $T_{max}=T_{rated}$ (km/h)$^*$ & 42 & 55 & 68\\
+Rated $\eta_{mot}$ / $\eta_{sys}$ (\%) & 79.3 / 77.0 & 80.2 / 77.9 & 80.9 / 78.8\\
+Peak $\eta_{sys}$ (\%) & 77.5 & 78.3 & 79.0\\
+\hline
+\multicolumn{4}{l}{\footnotesize $^*$Electrical limit only; assistance is cut at 25 km/h.}
+\end{tabular}}
+\end{table}
+
+To capture voltage sag during riding, the route model of Section~\ref{sec:route}
+was extended with a battery equivalent circuit. The terminal voltage is
+\begin{equation}
+v_b=\tfrac12\Big(E(\mathrm{SOC})+\sqrt{E(\mathrm{SOC})^2-4R_bP_b}\Big),
+\label{eq:battery}
+\end{equation}
+where $E(\mathrm{SOC})$ is a representative 10S NMC open-circuit-voltage curve
+(30~V empty, 41.8~V full; assumed rather than taken from a specific product),
+$R_b=0.15~\Omega$ and $P_b$ is the drive's battery power. The drive's
+efficiency and torque envelope are interpolated linearly in $v_b$ between the
+three FE-based maps, and SOC is integrated from the battery current. The
+results in Section~\ref{sec:route} show that, along the missions, sag changes
+consumption at the battery terminals by less than 3\%. Internal battery loss
+adds 1.5--4\%. On the aggressive mission at 20\% SOC the minimum loaded voltage
+reaches 29.8~V, which touches the 30-V controller cut-off.
+
+\subsection{Iron-Loss Model Uncertainty}
+The iron-loss model carries an estimated $\pm$30\% uncertainty. Table~\ref{tab:iron}
+scales it by 0.7 and 1.3 and re-optimizes the operating points.
+\begin{itemize}
+\item Rated efficiency moves by about $\pm$2 points ($\eta_{mot}$ 78.1--82.2\%,
+$\eta_{sys}$ 75.9--79.9\%).
+\item Route consumption moves by $-4$\% to $+5$\%.
+\end{itemize}
+Iron loss is therefore the second-largest uncertainty after the analytical-model
+error that FE removed. A calibrated loss model, from measurement or from FE with
+time-domain flux waveforms, would tighten the headline efficiency to about
+$\pm1$ point.
+
+\begin{table}[!t]
+\caption{Iron-Loss Model Sensitivity (FE Characteristic, 36 V)}
+\label{tab:iron}
+\centering
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{l c c c}
+\hline
+Iron-loss factor & 0.7 & 1.0 & 1.3\\
+\hline
+Rated $\eta_{mot}$ / $\eta_{sys}$ (\%) & 82.2 / 79.9 & 80.2 / 77.9 & 78.1 / 75.9\\
+Hill $\eta_{mot}$ / $\eta_{sys}$ (\%) & 79.0 / 76.7 & 77.5 / 75.3 & 76.0 / 73.8\\
+Cruise $\eta_{mot}$ / $\eta_{sys}$ (\%) & 82.2 / 79.4 & 79.8 / 77.0 & 77.3 / 74.6\\
+Peak $\eta_{sys}$ (\%) & 80.4 & 78.3 & 76.4\\
+Flat / hilly / aggr.\ (Wh/km) & 2.35 / 4.92 / 10.66 & 2.47 / 5.12 / 10.92 & 2.60 / 5.33 / 11.19\\
+\hline
+\end{tabular}}
+\end{table}
+
 \subsection{Converter and DC-Link Design}
 The asymmetric half bridge (two switches and two diodes per phase) is the only
 common SRM converter that provides $+V_{dc}$, $0$ and $-V_{dc}$ independently in
@@ -797,8 +945,11 @@ battery impedance and is barely affected by $C$.
 launch), not by capacitance.
 \end{itemize}
 A 1--2.2-mF low-ESR bank rated for at least 14~A RMS is therefore sufficient.
-The battery also carries 4--7~A RMS of low-frequency ripple at launch, which a
-Li-ion pack tolerates for short periods.
+The battery also carries 4--7~A RMS of low-frequency ripple at launch. With
+$R_b=0.15~\Omega$ this adds 2.9--6.9~W of internal heating for the few seconds
+of a launch. Whether this ripple is acceptable over the pack life must be
+checked against the cell manufacturer's ripple-current specification, which is
+outside the scope of this paper.
 
 \begin{table}[!t]
 \caption{DC-Link Current Sharing ($R_{ESR}=20$ m$\Omega$, $R_b=0.15$ $\Omega$, $L_b=1$ $\mu$H)}
@@ -821,8 +972,11 @@ Li-ion pack tolerates for short periods.
 \end{tabular}
 \end{table}
 
-\subsection{Transient Thermal Assessment}
-A four-node network replaces the single-node estimate of the first version.
+\subsection{Predicted Thermal Envelope}
+\label{sec:thermal}
+The temperatures in this subsection are predictions of an uncalibrated
+lumped-parameter model and define a predicted thermal envelope, not validated
+temperature rises. A four-node network replaces the single-node estimate of the first version.
 The nodes are the winding, stator, rotor and hub shell. The conductances are
 estimated from the geometry:
 \begin{itemize}
@@ -893,8 +1047,9 @@ well-known speed limit of TSF control~\cite{ye2015,xue2009}, and it is
 particularly restrictive at low DC-link voltage. A practical controller is
 therefore hybrid: TSF for launch, walk-assist and low-speed climbing, where
 ripple is felt most and power is small, and current-reference angle control
-above about 12~km/h. The mutual-coupling error of Section~\ref{sec:mutual}
-(5--7\%) bounds the achievable ripple without online compensation.
+above about 12~km/h. Coupled three-phase FE solves (Section~\ref{sec:mutual}) confirm that the
+TSF ripple reduction survives mutual coupling (6.4\% $\rightarrow$ 7.3\% at the
+200-r/min point).
 
 \begin{table}[!t]
 \caption{Current-Reference Control (CCC) Versus TSF (FE Characteristic)}
@@ -935,31 +1090,65 @@ current-reference control versus cubic TSF.}
 
 \section{Route Energy Evaluation}
 \label{sec:route}
-A 6.4-km urban route with five stops, a 700-m climb at 6\% and a 900-m descent
-at $-4$\% was simulated quasi-statically (Fig.~\ref{fig:cycle}). The rider
-supplies up to 100~W, force-limited at low speed. The motor supplies the
-remaining tractive power below 25~km/h, with efficiency interpolated from
-Fig.~\ref{fig:map}. Braking is mechanical. Over the 18.9-min ride, the
-predictions are as follows:
+Three standardized missions are simulated quasi-statically:
+\begin{itemize}
+\item \emph{flat urban}: 6.4~km on level roads with six stops;
+\item \emph{hilly urban}: 6.4~km with five stops, a 700-m climb at 6\% and a
+900-m descent at $-4$\% (Fig.~\ref{fig:cycle});
+\item \emph{aggressive}: 5.4~km with climbs of 6--10\% totalling 2.2~km and
+descents at $-4$\% and $-7$\%.
+\end{itemize}
+In all three, the rider supplies up to 100~W, force-limited at low speed. The
+motor supplies the remaining tractive power below 25~km/h, with efficiency
+interpolated from the FE-based maps, and braking is mechanical.
+
+On the hilly mission (18.9~min), the predictions at a fixed 36~V are as follows:
 \begin{itemize}
 \item the rider contributes 25.5~Wh and the motor 23.4~Wh at the shaft;
 \item the motor draws 32.7~Wh from the battery, a cycle-average $\eta_{sys}$ of 71.4\%;
-\item consumption is 5.12~Wh/km, which corresponds to an \emph{estimated
-range of about 63~km under these route and modeling assumptions} from 90\% of a
-360-Wh pack.
+\item consumption is 5.12~Wh/km.
 \end{itemize}
-The torque demand never exceeds the envelope.
+Table~\ref{tab:missions} compares the three missions, with and without the
+battery equivalent circuit \eqref{eq:battery}. Consumption varies more than
+fourfold between missions, from 2.5 to 10.9~Wh/km, so a single route figure
+must not be read as a general consumption prediction. With sag, the
+\emph{estimated} range to the 30-V cut-off is 142, 68 and 32~km. These figures
+use nearly the full capacity, whereas the fixed-voltage estimates assume 90\%.
+The torque demand never exceeds the envelope, even at 20\% SOC.
+
+\begin{table}[!t]
+\caption{Standardized Missions: Predicted Consumption and Estimated Range}
+\label{tab:missions}
+\centering
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{l c c c}
+\hline
+Mission & Flat urban & Hilly urban & Aggressive\\
+\hline
+Distance (km) & 6.4 & 6.4 & 5.4\\
+Fixed 36 V: Wh/km & 2.47 & 5.12 & 10.92\\
+Fixed 36 V: est.\ range, 90\% of 360 Wh (km) & 131 & 63 & 30\\
+Battery model, SOC 100\%: Wh/km (terminal) & 2.40 & 5.08 & 10.89\\
+Battery model, SOC 20\%: Wh/km (terminal) & 2.47 & 5.10 & 10.95\\
+Battery model, SOC 50\%: Wh/km (incl.\ $R_b$ loss) & 2.50 & 5.23 & 11.28\\
+Min.\ loaded voltage at SOC 20\% (V) & 32.0 & 31.4 & 29.8\\
+Est.\ range to 30-V cut-off with sag (km) & 142 & 68 & 32\\
+\hline
+\end{tabular}}
+\end{table}
 
 The brakes dissipate 7.2~Wh at the wheel. With a generating efficiency of
 about 0.75 and $\eta_g=0.95$, regeneration could return at most about 5~Wh,
-roughly 15\% of the battery energy on this hilly route and less on flat routes.
+roughly 15\% of the battery energy on the hilly mission and less on the flat one.
 The asymmetric bridge supports regeneration without hardware change. It is
 omitted in the baseline because it complicates the brake interface and the
 freewheel arrangement for a modest gain.
 
-The quasi-static model neglects electrical and mechanical transients, battery
-voltage sag (the turns are designed for the 30-V end-of-discharge voltage),
-controller delays and the thermal state. Table~\ref{tab:gear} reports the
+The quasi-static model neglects electrical and mechanical transients,
+controller delays and the thermal state. Battery sag is included only in the
+results labeled ``battery model''. Table~\ref{tab:gear} reports the
 sensitivity to the gear model. Over the plausible range $\eta_g=0.90$--0.97,
 consumption varies from 5.02 to 5.38~Wh/km (estimated range 65--60~km), and the
 launch torque requirement from 5.81 to 6.26~N$\cdot$m. The launch requirement
@@ -969,12 +1158,12 @@ to 6\%.
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{fig_cycle}
-\caption{Route simulation: speed, motor torque, and battery and rider power.}
+\caption{Hilly urban mission: speed, motor torque, and battery and rider power.}
 \label{fig:cycle}
 \end{figure}
 
 \begin{table}[!t]
-\caption{Gear-Model Sensitivity (Route of Fig.~\ref{fig:cycle})}
+\caption{Gear-Model Sensitivity (Hilly Mission, Fixed 36 V)}
 \label{tab:gear}
 \centering
 \renewcommand{\arraystretch}{1.08}
@@ -993,7 +1182,7 @@ $\eta_g=0.95$ + 5 W drag & 5.96 & 5.33 & 61\\
 \end{tabular}
 \end{table}
 
-\section{Design Trade-Offs}
+\section{Design Trade-Offs and Test of the Corner-Speed Rule}
 \label{sec:trade}
 Table~\ref{tab:trade} and Fig.~\ref{fig:trade} vary the gear ratio $G$ and the
 peak electric loading $A$. Each machine is redesigned and the current is
@@ -1002,9 +1191,20 @@ it reproduces the FE rated efficiency of the baseline to within 1 point
 (Table~\ref{tab:anfe}), so the trends are reliable even though absolute values
 carry the uncertainty of Table~\ref{tab:feaval}. Three observations stand out.
 \begin{enumerate}
-\item The required peak current varies only from 27.7 to 33.7~A across a
-fourfold range of active mass, consistent with \eqref{eq:invariant}
-($k_c=0.54$--$0.66$).
+\item The required peak current (for the launch torque, before the 10\%
+converter margin) lies between 25.2 and 30.6~A across a 3.9-fold range of active
+mass. Fig.~\ref{fig:corner}(a) shows this. A linear fit of current against mass
+has a slope of $-0.06$~A/kg ($-0.2$\%/kg) and $R^2=0.004$, so the current is
+statistically independent of machine size. The loop-utilization factor is
+$k_c=0.60\pm0.03$ (mean $\pm$ standard deviation, range 0.54--0.66), and the rule
+$I_{pk}=P_c/(\bar k_cV_{dc,min})=27.8$~A reproduces every design to within
+10.3\%. To test the voltage dependence, the baseline frame ($G=8$,
+$A=45$~kA/m) was redesigned for 24-, 36- and 48-V packs ($V_{dc,min}=20$, 30
+and 40~V; 27, 41 and 54 turns per pole). The required current falls from 42.3
+to 27.9 to 21.2~A, a log--log slope of $-1.002$ (Fig.~\ref{fig:corner}(b)), with
+$k_c=0.59$--$0.60$ in all three cases. Both tests support \eqref{eq:invariant}
+within the scope of this design family (one-stroke dwell, same pole
+configuration and loading coefficients).
 \item Rated efficiency is governed mainly by electric loading, i.e., by active
 mass. For $G=8$, lowering $A$ from 60 to 35~kA/m raises $\eta_{sys}$ from 75.1\%
 to 80.3\% while active mass grows from 2.5 to 4.4~kg.
@@ -1045,6 +1245,17 @@ $G$ & $A$ & $D_o$ & $L$ & Mass & $I_{max}$ & $\eta_{mot}$ & $\eta_{sys}$\\
 \caption{Rated-point system efficiency versus active mass for gear ratios 5, 8
 and 11. The labels give the peak electric loading in kA/m.}
 \label{fig:trade}
+\end{figure}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{fig_corner_rule}
+\caption{Test of the corner-speed rule \eqref{eq:invariant}. (a) Required peak
+current versus active mass for the nine designs of Table~\ref{tab:trade}, with
+a linear fit and the rule prediction $P_c/(\bar k_cV_{dc,min})$. (b) Required
+current of the baseline frame redesigned for 24-, 36- and 48-V packs, against
+$P_c/(\bar k_cV)$.}
+\label{fig:corner}
 \end{figure}
 
 \section{Discussion}
@@ -1117,16 +1328,70 @@ Minimum local gap, worst case / RSS & 0.215 / 0.261\\
 \end{tabular}
 \end{table}
 
-\subsection{Comparison With PM Hub Drives}
-The predicted SRM efficiencies (77.9\% $\eta_{sys}$ at the rated point, 78.3\%
-peak) cannot be compared directly with catalog figures for PM e-bike motors.
-Such comparisons require the same measurement boundary (gear and controller
-included or not), voltage, temperature, operating point and test method, and
-catalog values rarely state these. We therefore make only a qualitative claim.
-The SRM trades several points of efficiency for the absence of magnets and drag
-torque, lower material cost and fault tolerance, and the trade study shows how
-much of that gap mass can close. A like-for-like comparison against a PM design
-sized to the same mission with the same toolchain is planned.
+\subsection{Equal-Envelope Benchmark Against a Surface-PM Machine}
+\label{sec:pm}
+Catalog efficiencies of PM e-bike motors are not comparable with the present
+predictions, because their measurement boundaries, voltages, temperatures and
+test methods differ or are not stated. We therefore sized a first-order
+analytic surface-PM (SPM) benchmark to the \emph{same} constraints:
+\begin{itemize}
+\item the same mission, envelope ($D_o=135.3$~mm, $L=35.9$~mm), gear and
+battery;
+\item the same MOSFETs, iron-loss coefficients and mechanical loss;
+\item the same efficiency boundary and route model.
+\end{itemize}
+The benchmark is a 12-slot/10-pole concentrated-winding machine (winding factor
+0.933) with N42SH magnets ($B_r=1.17$~T at 100~$^\circ$C, 3~mm thick, 0.83 pole
+arc) and a 0.5-mm air gap. Its turns follow the same voltage logic as the SRM:
+the no-load line-to-line EMF at 25~km/h equals the 30-V minimum battery voltage.
+It is driven by sinusoidal $I_d=0$ control from a six-switch inverter at
+16~kHz. Its iron loss uses the same Bertotti coefficients ($k_{ns}=1$), and an
+assumed magnet eddy-current loss of 10\% of the stator iron loss is added. The
+model neglects saturation, slotting harmonics and field weakening. It
+therefore matches the fidelity of the SRM's \emph{analytical} model, and
+Table~\ref{tab:pm} lists both SRM models.
+
+\begin{table}[!t]
+\caption{Equal-Envelope Benchmark: Analytic SPM Versus SRM}
+\label{tab:pm}
+\centering
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{l c c c}
+\hline
+ & SPM & SRM & SRM\\
+ & (analytic) & (analytic) & (FE)\\
+\hline
+Active mass / magnet mass (kg) & 3.04 / 0.16 & 3.40 / 0 & 3.40 / 0\\
+Launch current (A, peak) & 37.5 & 27.9 & 26.5\\
+Launch $\eta_{mot}$ / $\eta_{sys}$ (\%) & 66.0 / 57.6 & 19.9 / 18.0 & 17.7 / 15.9\\
+Hill $\eta_{mot}$ / $\eta_{sys}$ (\%) & 94.5 / 93.5 & 75.9 / 73.6 & 77.5 / 75.3\\
+Rated $\eta_{mot}$ / $\eta_{sys}$ (\%) & 90.6 / 90.2 & 80.9 / 78.8 & 80.2 / 77.9\\
+Cruise $\eta_{mot}$ / $\eta_{sys}$ (\%) & 84.9 / 84.5 & 79.8 / 77.0 & 79.8 / 77.0\\
+Flat / hilly / aggr.\ (Wh/km) & 3.03 / 4.93 / 8.68 & -- & 2.47 / 5.12 / 10.92\\
+Coasting loss, no clutch, 25 km/h (W) & 19.7 & 0 & 0\\
+\hline
+\end{tabular}}
+\end{table}
+
+The benchmark gives an unambiguous result, which we report as it stands. At the
+same envelope, the SPM is predicted to be about 11--12 points more efficient at
+the rated point and far better at launch, where the SRM's copper loss is ten
+times higher. It also uses 4\% and 20\% less energy on the hilly and
+aggressive missions. On the flat, light-assist mission the SRM uses 18\% less
+energy. The motor then delivers small torques for long periods, and the
+SPM's magnet-driven iron loss (about 18~W at 25~km/h, independent of load)
+dominates, while the SRM's iron loss scales with excitation. The SPM also
+dissipates about 20~W when coasting without a freewheel clutch. Geared hubs
+normally include such a clutch, but direct-drive hubs do not. Against these
+efficiency deficits, the SRM offers zero magnet content (0.16~kg of NdFeB
+avoided), robustness to temperature and overspeed, phase-independent fault
+tolerance and a simpler rotor. Its case for pedelecs therefore rests on cost,
+supply-chain and robustness grounds and on light-assist use, not on peak
+efficiency. Because the SPM model is first-order, its efficiencies are likely
+optimistic by a few points, but not by enough to reverse the comparison at the
+rated point.
 
 \subsection{Limitations and Validation Status}
 \label{sec:limits}
@@ -1137,41 +1402,59 @@ voltage and current, torque and ripple, DC input power, efficiency map,
 temperature rise and acoustic noise) are the next step of this work.
 \item \emph{Magnetics.} 2-D FE neglects end effects except for the analytical
 end-winding term. Axial fringing in a 36-mm stack typically adds a few percent
-of inductance. Mutual coupling is quantified (Section~\ref{sec:mutual}) but not
-included in the drive model.
+of inductance. Mutual coupling is not included in the drive model; coupled FE solves bound
+its effect on mean torque at 1.5\% (Section~\ref{sec:mutual}).
 \item \emph{Losses.} Iron loss uses a peak-flux-density model with a
 non-sinusoidal factor ($\pm$30\%).
 \item \emph{Thermal network.} The thermal parameters are geometry-based
 estimates that have not been calibrated.
-\item \emph{Route model.} The route model is quasi-static.
+\item \emph{Route model.} The route model is quasi-static; battery sag is
+included through an equivalent circuit (Section~\ref{sec:battery}) but
+electrical and mechanical transients are not.
+\item \emph{Acoustics.} Acoustic noise and radial-force vibration are outside
+the present modeling scope, and no claim is made that the design is
+acoustically acceptable.
 \end{itemize}
 
 \section{Conclusion}
 This paper has presented an analytical, FE and simulation-based design
 methodology for a switched reluctance motor drive for a 250-W, 36-V pedelec.
+All results are model predictions; no prototype has been measured.
 \begin{itemize}
-\item \emph{Corner-speed rule.} The phase turns are chosen at the corner speed
-$n_c=P_{pk}/T_{pk}$. For the specified 36-V, 500-W corner power, this
-approximately halves the peak current relative to sizing the turns for launch
-torque at 25~km/h. The relation $P_c=k_cV_{dc}I_{pk}$ ($k_c\approx0.54$--$0.66$)
-recasts the classical converter volt-ampere argument for sizing and shows that
-peak current depends only weakly on machine size.
-\item \emph{FE validation.} Nonlinear 2-D FE showed that the analytical model
-errs by up to 23\% in flux linkage and 17\% in mean torque, so FE tables were
-used for all drive-level predictions.
+\item \emph{Corner-speed rule.} The phase turns are chosen at the
+mission-derived corner speed $n_c=P_{pk}/T_{pk}$. For the specified 36-V, 500-W
+corner power, this approximately halves the peak current relative to sizing
+the turns for launch torque at 25~km/h. The relation $P_c=k_cV_{dc}I_{pk}$
+recasts the classical converter volt-ampere argument for sizing. Within this
+design family it holds with $k_c=0.60\pm0.03$, shows no dependence of current
+on machine mass ($R^2=0.004$ over a 3.9-fold mass range), and gives
+$I_{pk}\propto V^{-1.00}$ across 24--48-V designs.
+\item \emph{FE-based numerical verification.} Nonlinear 2-D FE showed that the
+analytical model errs by up to 23\% in flux linkage and 17\% in mean torque, so
+FE tables were used for all drive-level predictions. Coupled three-phase FE
+solves changed mean torque by at most 1.5\%.
 \item \emph{Predicted performance.} The 12/8, $\varnothing$135-mm, 3.4-kg
 (active) machine with an 8:1 gear and a 100-V MOSFET asymmetric bridge meets
-the launch torque at 26.5~A with an 11.6\% margin. It reaches 80.2\% motor and
-77.9\% system efficiency at the rated point and an estimated 5.1~Wh/km on a
-hilly route.
+the launch torque at 26.5~A with an 11.6\% margin at any battery voltage from
+30 to 42~V. It reaches 80.2\% motor and 77.9\% system efficiency at the rated
+point ($\pm$2 points for $\pm$30\% iron-loss uncertainty), and consumes
+2.5--10.9~Wh/km on flat to aggressive missions.
 \item \emph{Torque ripple.} TSF control reduces ripple to 10--33\% below
 500~r/min but is infeasible above about 800~r/min at 36~V, which motivates a
 hybrid controller.
 \item \emph{Converter and thermal.} Switching losses are negligible at 36~V up to
-20~kHz. The DC link is ripple-current-limited, and only sustained climbing in
-hot climates approaches the insulation limit.
+20~kHz, and the DC link is ripple-current-limited. In the predicted thermal
+envelope, only sustained climbing in hot climates approaches the insulation
+limit.
+\item \emph{PM benchmark.} An equal-envelope analytic SPM is predicted to be
+about 12 points more efficient at the rated point and to use less energy on
+hilly and aggressive missions. The SRM uses 18\% less energy on flat
+light-assist riding and needs no magnets.
 \end{itemize}
-Prototype validation of these predictions is the subject of ongoing work.
+The SRM is therefore a credible magnet-free option for pedelecs whose case
+rests on cost, supply chain, robustness and light-assist use rather than on
+peak efficiency. Prototype validation of these predictions is the subject of
+ongoing work.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

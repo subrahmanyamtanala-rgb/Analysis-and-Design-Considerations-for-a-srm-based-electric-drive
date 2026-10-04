@@ -13,7 +13,9 @@ An IEEE Transactions-format manuscript (IEEEtran, journal mode) is in
 **[`paper/`](paper/)**. It is revised after peer review and its results are
 FE-based. [`paper/main.pdf`](paper/main.pdf) is the manuscript, and
 [`paper/response_to_reviewers.pdf`](paper/response_to_reviewers.pdf) is the
-point-by-point reply. The previous version is kept as `paper/main_v1.tex`.
+first-round reply and
+[`paper/response_to_reviewers_round2.pdf`](paper/response_to_reviewers_round2.pdf)
+the second-round reply. The first manuscript version is kept as `paper/main_v1.tex`.
 
 ![efficiency map](results/fig_efficiency_map.png)
 
@@ -34,12 +36,14 @@ point-by-point reply. The previous version is kept as `paper/main_v1.tex`.
 | Torque sharing | `srm_ebike/tsf.py` | Linear / cubic / cosine / exponential TSF, inverse torque map, three-level current tracking |
 | Thermal | `srm_ebike/thermal.py` | Four-node transient thermal network (winding, stator, rotor, shell) |
 | DC link | `srm_ebike/dclink.py` | Charge bound and harmonic current sharing between capacitor and battery |
+| Battery & missions | `srm_ebike/drive_cycle.py` | Flat / hilly / aggressive missions; battery equivalent circuit (OCV(SOC), R_int, sag) with voltage-interpolated drive maps; range to cut-off |
+| PM benchmark | `srm_ebike/pm_benchmark.py` | First-order analytic surface-PM machine (12s/10p) at equal envelope, voltage, devices and loss coefficients |
 
 ## Quick start
 
 ```bash
 pip install -r requirements.txt
-python -m pytest                       # 27 physics / consistency tests
+python -m pytest                       # 31 physics / consistency tests
 python scripts/run_analysis.py         # analytical-model analysis -> results/  (~4 min)
 python scripts/run_analysis.py --quick --out /tmp/srm   # coarse smoke run (~40 s)
 
@@ -47,11 +51,23 @@ python scripts/run_analysis.py --quick --out /tmp/srm   # coarse smoke run (~40 
 python scripts/run_fea.py              # FE tables + mutual/air-gap/pole-arc/mesh studies -> results/fea/ (~10 min on 4 cores)
 python scripts/make_paper_figures.py   # geometry, trade study, analytical figures -> paper/figures/
 python scripts/run_revision.py         # FE-based drive results, TSF, PWM, thermal, gear, DC link -> results/revision/
-make -C paper                          # builds paper/main.pdf
+python scripts/run_revision2.py        # battery voltage/SOC, iron-loss uncertainty, coupled 3-phase FE,
+                                       # corner-rule test, PM benchmark -> results/revision2/ (~10 min)
+make -C paper                          # builds paper/main.pdf and the response letters
 ```
 
 The FE solver needs `gmsh` and `scikit-fem` (in `requirements.txt`). On a
 headless Linux machine gmsh also needs `libglu1-mesa`.
+
+### Reproducibility
+
+The results in the paper were produced with the exact versions in
+[`requirements-lock.txt`](requirements-lock.txt) (Python 3.11.15, NumPy 2.4.6,
+SciPy 1.17.1, Matplotlib 3.11.2, scikit-fem 12.0.2, gmsh 4.15.2, TeX Live 2023).
+The paper cites release tag `v2.0-rev2`, and [`CITATION.cff`](CITATION.cff)
+gives the citation metadata. All intermediate data (FE tables in
+`results/fea/`, study outputs in `results/revision*/`) are committed, so the
+figures can be rebuilt without re-running the FE campaign.
 
 Every design parameter is a dataclass field (`EBikeSpec`, `SizingInputs`,
 `SRMDrive`, `ConverterParams`, `IronLossCoefficients`), so you can run trade
@@ -76,6 +92,8 @@ print(dd.design.summary(), dd.drive.i_max)
 | Efficiency (FE-based) | 80.2 % motor and 77.9 % battery-to-shaft at the 250 W rated point |
 | Route (FE-based) | 5.1 Wh/km on a hilly 6.4 km route; estimated range ≈ 63 km under the model assumptions |
 | Torque ripple | 60–100 % with current-reference control; 10–33 % with cubic TSF below 500 rpm |
+| Missions (FE-based) | flat / hilly / aggressive: 2.5 / 5.1 / 10.9 Wh/km |
+| PM benchmark | equal-envelope analytic SPM: ≈ 12 points higher rated efficiency; SRM uses 18 % less energy on flat light-assist riding and needs no magnets |
 
 These are predictions from analytical, 2-D FE and lumped models. No prototype
 has been measured yet. The model limitations are listed in section X-D of the

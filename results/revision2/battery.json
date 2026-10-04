@@ -1,0 +1,250 @@
+{
+ "rows": [
+  {
+   "v_dc": 30.0,
+   "i_required_launch": 26.547406115753265,
+   "T_launch_at_Imax": 6.628233715048235,
+   "T_max_base": 2.9087159767733874,
+   "P_max_base": 489.68282437262417,
+   "n_rated_torque_limit_rpm": 2705.223350259296,
+   "v_rated_torque_limit_kmh": 42.068613527296144,
+   "rated": {
+    "T": 1.4925988223136382,
+    "i_rms": 8.304931911874737,
+    "eta_motor": 0.7928190337949154,
+    "eta_system": 0.7701752064666123,
+    "p_in": 300.82001195205333,
+    "losses": {
+     "copper": 40.94898194132281,
+     "core": 17.275263510239245,
+     "converter_conduction": 8.548739740437961,
+     "converter_switching": 0.04302725452850549,
+     "mechanical": 2.31988469106335
+    }
+   },
+   "eta_sys_max": 0.7753185832689693,
+   "eta_mot_max": 0.800816965351611
+  },
+  {
+   "v_dc": 36.0,
+   "i_required_launch": 26.534799715787244,
+   "T_launch_at_Imax": 6.625306499209289,
+   "T_max_base": 3.9451343754295944,
+   "P_max_base": 664.1640362676086,
+   "n_rated_torque_limit_rpm": 3555.1202555740806,
+   "v_rated_torque_limit_kmh": 55.28526140382199,
+   "rated": {
+    "T": 1.4811485255355212,
+    "i_rms": 7.674708145543063,
+    "eta_motor": 0.8015033910134222,
+    "eta_system": 0.7790786955025387,
+    "p_in": 292.50532743978783,
+    "losses": {
+     "copper": 34.96992449827767,
+     "core": 19.147050005112465,
+     "converter_conduction": 8.092756667980755,
+     "converter_switching": 0.09104264802075561,
+     "mechanical": 2.31988469106335
+    }
+   },
+   "eta_sys_max": 0.7830015984535763,
+   "eta_mot_max": 0.8060338180302452
+  },
+  {
+   "v_dc": 42.0,
+   "i_required_launch": 26.48467792227796,
+   "T_launch_at_Imax": 6.6380383685495765,
+   "T_max_base": 4.584874351338212,
+   "P_max_base": 771.8643689121569,
+   "n_rated_torque_limit_rpm": 4400.007416598878,
+   "v_rated_torque_limit_kmh": 68.4240033298518,
+   "rated": {
+    "T": 1.485131110964633,
+    "i_rms": 7.069959952431362,
+    "eta_motor": 0.8091512300514632,
+    "eta_system": 0.7882836579180661,
+    "p_in": 287.1022500837076,
+    "losses": {
+     "copper": 29.67596594361542,
+     "core": 21.384175969412812,
+     "converter_conduction": 7.326802387694318,
+     "converter_switching": 0.07740919942926622,
+     "mechanical": 2.31988469106335
+    }
+   },
+   "eta_sys_max": 0.7901262315430658,
+   "eta_mot_max": 0.8096504539609075
+  }
+ ],
+ "routes": [
+  {
+   "route": "flat_urban",
+   "distance_km": 6.400913492406404,
+   "fixed36_Wh_per_km": 2.4673714947508043,
+   "fixed36_range_km": 131.31382959124394,
+   "soc100": {
+    "laps": 1,
+    "distance_km": 6.400913492406404,
+    "soc_end": 0.9625325513830172,
+    "v_min": 38.91495559808119,
+    "energy_terminal_Wh": 15.354078444771366,
+    "energy_chemical_Wh": 15.577288945379223,
+    "energy_motor_Wh": 10.89465535280275,
+    "Wh_per_km_terminal": 2.3987323782748153,
+    "Wh_per_km_chemical": 2.433604041651091,
+    "torque_deficit_s": 0.0
+   },
+   "soc50": {
+    "laps": 1,
+    "distance_km": 6.400913492406404,
+    "soc_end": 0.4569155123332956,
+    "v_min": 34.206055414424874,
+    "energy_terminal_Wh": 15.72992719112348,
+    "energy_chemical_Wh": 16.02417518570527,
+    "energy_motor_Wh": 10.89465535280275,
+    "Wh_per_km_terminal": 2.457450363887024,
+    "Wh_per_km_chemical": 2.5034200516403216,
+    "torque_deficit_s": 0.0
+   },
+   "soc20": {
+    "laps": 1,
+    "distance_km": 6.400913492406404,
+    "soc_end": 0.15424394780426023,
+    "v_min": 31.982664246590737,
+    "energy_terminal_Wh": 15.804039301097465,
+    "energy_chemical_Wh": 16.138872729336818,
+    "energy_motor_Wh": 10.89465535280275,
+    "Wh_per_km_terminal": 2.469028728453567,
+    "Wh_per_km_chemical": 2.5213389852062287,
+    "torque_deficit_s": 0.0
+   },
+   "range_to_cutoff_km": 142.16050669027112,
+   "range_soc_end": 0.059304089097062244,
+   "range_deficit_s": 0.0
+  },
+  {
+   "route": "hilly_urban",
+   "distance_km": 6.400456994726771,
+   "fixed36_Wh_per_km": 5.115161273401063,
+   "fixed36_range_km": 63.34111139072119,
+   "soc100": {
+    "laps": 1,
+    "distance_km": 6.400456994726771,
+    "soc_end": 0.919800875699141,
+    "v_min": 38.33498531480731,
+    "energy_terminal_Wh": 32.51451539190501,
+    "energy_chemical_Wh": 33.13766618032387,
+    "energy_motor_Wh": 23.375258005967808,
+    "Wh_per_km_terminal": 5.080030288258037,
+    "Wh_per_km_chemical": 5.177390646890594,
+    "torque_deficit_s": 0.0
+   },
+   "soc50": {
+    "laps": 1,
+    "distance_km": 6.400456994726771,
+    "soc_end": 0.40964199666705475,
+    "v_min": 33.9340448106011,
+    "energy_terminal_Wh": 32.70943686600644,
+    "energy_chemical_Wh": 33.49960393307394,
+    "energy_motor_Wh": 23.375258005967808,
+    "Wh_per_km_terminal": 5.11048459398371,
+    "Wh_per_km_chemical": 5.233939382871208,
+    "torque_deficit_s": 0.0
+   },
+   "soc20": {
+    "laps": 1,
+    "distance_km": 6.400456994726771,
+    "soc_end": 0.1042222360284381,
+    "v_min": 31.397857940679565,
+    "energy_terminal_Wh": 32.652817683892586,
+    "energy_chemical_Wh": 33.54284925798943,
+    "energy_motor_Wh": 23.375258005967808,
+    "Wh_per_km_terminal": 5.10163847843907,
+    "Wh_per_km_chemical": 5.240695982431382,
+    "torque_deficit_s": 0.0
+   },
+   "range_to_cutoff_km": 67.7414642055522,
+   "range_soc_end": 0.05055816132338089,
+   "range_deficit_s": 0.0
+  },
+  {
+   "route": "aggressive",
+   "distance_km": 5.400971953254325,
+   "fixed36_Wh_per_km": 10.92153755744881,
+   "fixed36_range_km": 29.666152617771523,
+   "soc100": {
+    "laps": 1,
+    "distance_km": 5.400971953254325,
+    "soc_end": 0.8525625953530895,
+    "v_min": 37.91924034599346,
+    "energy_terminal_Wh": 58.81901292817633,
+    "energy_chemical_Wh": 60.34787394017011,
+    "energy_motor_Wh": 42.19442945581178,
+    "Wh_per_km_terminal": 10.890449614857797,
+    "Wh_per_km_chemical": 11.173521074074054,
+    "torque_deficit_s": 0.0
+   },
+   "soc50": {
+    "laps": 1,
+    "distance_km": 5.400971953254325,
+    "soc_end": 0.334769107996554,
+    "v_min": 33.70386737643168,
+    "energy_terminal_Wh": 59.00556167115073,
+    "energy_chemical_Wh": 60.927796554120455,
+    "energy_motor_Wh": 42.19442945581178,
+    "Wh_per_km_terminal": 10.924989461498177,
+    "Wh_per_km_chemical": 11.28089482438596,
+    "torque_deficit_s": 0.0
+   },
+   "soc20": {
+    "laps": 1,
+    "distance_km": 5.400971953254325,
+    "soc_end": 0.02034626097258199,
+    "v_min": 29.815669888231465,
+    "energy_terminal_Wh": 59.11807852829168,
+    "energy_chemical_Wh": 61.39953372205498,
+    "energy_motor_Wh": 42.19442945581178,
+    "Wh_per_km_terminal": 10.945822166817662,
+    "Wh_per_km_chemical": 11.368237838202258,
+    "torque_deficit_s": 0.0
+   },
+   "range_to_cutoff_km": 32.422706719525955,
+   "range_soc_end": 0.027206706222743234,
+   "range_deficit_s": 0.0
+  }
+ ],
+ "battery": {
+  "cells": 10,
+  "capacity_ah": 10.0,
+  "r_internal": 0.15,
+  "soc_pts": [
+   0.0,
+   0.05,
+   0.1,
+   0.2,
+   0.3,
+   0.4,
+   0.5,
+   0.6,
+   0.7,
+   0.8,
+   0.9,
+   1.0
+  ],
+  "ocv_cell": [
+   3.0,
+   3.3,
+   3.45,
+   3.55,
+   3.62,
+   3.68,
+   3.73,
+   3.8,
+   3.88,
+   3.96,
+   4.06,
+   4.18
+  ],
+  "v_cutoff": 30.0
+ }
+}

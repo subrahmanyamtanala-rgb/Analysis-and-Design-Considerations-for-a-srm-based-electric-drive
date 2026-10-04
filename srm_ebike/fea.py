@@ -254,7 +254,7 @@ class SRMFEA:
         return mesh
 
     # ------------------------------------------------------------------
-    def solve(self, theta: float, currents=(0.0, 0.0, 0.0), a0=None, tol: float = 1e-6, max_iter: int = 40) -> tuple[FEAResult, np.ndarray]:
+    def solve(self, theta: float, currents=(0.0, 0.0, 0.0), a0=None, tol: float = 1e-6, max_iter: int = 80, _ramp: bool = False) -> tuple[FEAResult, np.ndarray]:
         from skfem import Basis, BilinearForm, ElementTriP0, ElementTriP1, LinearForm, MeshTri, asm
         from skfem.helpers import dot, grad
 
@@ -307,18 +307,56 @@ class SRMFEA:
             return nu * dot(ga, grad(v)) - w["j"] * v
 
         boundary = basis.get_dofs(lambda x: np.hypot(x[0], x[1]) > d.outer_diameter / 2 - 1e-6).all()
-        a = np.zeros(basis.N) if a0 is None or len(a0) != basis.N else a0.copy()
+        # a warm start is only meaningful on the same mesh (same rotor position)
+        key = round(theta, 9)
+        same_mesh = a0 is not None and len(a0) == basis.N and getattr(self, "_last_key", None) == key
+        self._last_key = key
+        a = a0.copy() if same_mesh else np.zeros(basis.N)
         a[boundary] = 0.0
         f_norm = np.linalg.norm(asm(rhs, basis, j=j_field)) + 1e-30
         it = 0
+        a_old = da_old = None
+        prev_res, alpha = np.inf, 1.0
         for it in range(1, max_iter + 1):
             aw = basis.interpolate(a)
-            k = asm(jac, basis, a=aw, fe=iron_field)
             r = asm(residual, basis, a=aw, fe=iron_field, j=j_field)
             res = np.linalg.norm(np.delete(r, boundary)) / f_norm
+            # backtracking: if the full Newton step increased the residual
+            # (or produced NaN, e.g. a step deep into saturation), halve it
+            if a_old is not None and (not np.isfinite(res) or res > 2.0 * prev_res) and alpha > 1 / 64:
+                alpha *= 0.5
+                a = a_old + alpha * da_old
+                continue
             if res < tol and it > 1:
                 break
-            a = a + solve_condensed(k, -r, boundary)
+            k = asm(jac, basis, a=aw, fe=iron_field)
+            da = solve_condensed(k, -r, boundary)
+            a_old, da_old, prev_res, alpha = a, da, res, 1.0
+            a = a + da
+        if not np.all(np.isfinite(a)) or res >= tol:
+            if same_mesh:  # retry from a cold start
+                return self.solve(theta, currents, None, tol, max_iter)
+            if not _ramp:
+                # 1) current continuation: 25 -> 50 -> 75 -> 100 % with warm starts
+                try:
+                    a_c = None
+                    for f in (0.25, 0.5, 0.75):
+                        _, a_c = self.solve(theta, tuple(f * c for c in currents), a_c, tol, max_iter, _ramp=True)
+                        self._last_key = key
+                    return self.solve(theta, currents, a_c, tol, max_iter, _ramp=True)
+                except RuntimeError:
+                    pass
+                # 2) mesh-specific failure (degenerate element): regenerate the
+                #    mesh at a rotor angle shifted by +/-0.01 deg
+                for dth in (1.75e-4, -1.75e-4):
+                    try:
+                        out = self.solve(theta + dth, currents, None, tol, max_iter, _ramp=True)
+                        self.n_mesh_retries = getattr(self, "n_mesh_retries", 0) + 1
+                        return out
+                    except RuntimeError:
+                        continue
+            if not np.all(np.isfinite(a)):
+                raise RuntimeError(f"FE Newton iteration diverged at theta={theta:.4f} rad, currents={currents}")
         # ---- post-processing ------------------------------------------------
         psi2d = np.zeros(d.phases)
         a_el = a[tri].mean(axis=0)

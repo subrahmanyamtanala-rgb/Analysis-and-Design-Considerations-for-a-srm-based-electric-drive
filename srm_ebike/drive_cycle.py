@@ -168,3 +168,168 @@ def simulate_route(
         "torque_deficit_s": float((deficit > 1e-6).sum() * dt),
         "energy_braking_Wh": float(p_brake.sum() * dt / 3600),
     }
+
+
+# ---------------------------------------------------------------------------
+# Standardized missions
+# ---------------------------------------------------------------------------
+FLAT_URBAN = [
+    Segment(500, 0.00, 20, True),
+    Segment(800, 0.00, 25, True),
+    Segment(1200, 0.00, 25, False),
+    Segment(600, 0.00, 18, True),
+    Segment(1500, 0.00, 25, True),
+    Segment(800, 0.00, 22, True),
+    Segment(1000, 0.00, 25, True),
+]
+HILLY_URBAN = DEFAULT_ROUTE
+AGGRESSIVE = [
+    Segment(300, 0.00, 20, True),
+    Segment(600, 0.08, 12, False),
+    Segment(400, 0.10, 10, True),
+    Segment(500, 0.02, 20, False),
+    Segment(800, -0.07, 25, True),
+    Segment(700, 0.06, 15, True),
+    Segment(600, 0.00, 25, True),
+    Segment(500, 0.09, 11, False),
+    Segment(1000, -0.04, 25, True),
+]
+ROUTES = {"flat_urban": FLAT_URBAN, "hilly_urban": HILLY_URBAN, "aggressive": AGGRESSIVE}
+
+
+# ---------------------------------------------------------------------------
+# Battery equivalent circuit and voltage-dependent drive maps
+# ---------------------------------------------------------------------------
+@dataclass
+class BatteryModel:
+    """10S Li-ion pack: OCV(SOC) of a typical NMC cell and a series resistance.
+
+    The OCV curve is a representative NMC characteristic (assumed, not a
+    specific product); terminal voltage v = OCV(SOC) - R i.
+    """
+
+    cells: int = 10
+    capacity_ah: float = 10.0
+    r_internal: float = 0.15
+    soc_pts: tuple = (0.0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
+    ocv_cell: tuple = (3.00, 3.30, 3.45, 3.55, 3.62, 3.68, 3.73, 3.80, 3.88, 3.96, 4.06, 4.18)
+    v_cutoff: float = 30.0  # controller under-voltage limit (terminal)
+
+    def ocv(self, soc: float) -> float:
+        return self.cells * float(np.interp(soc, self.soc_pts, self.ocv_cell))
+
+    def terminal(self, soc: float, p: float) -> tuple[float, float]:
+        """Terminal voltage and current for a power demand p (W) at the terminals."""
+        e = self.ocv(soc)
+        disc = e * e - 4 * self.r_internal * p
+        if disc < 0:  # power not deliverable: maximum-power point
+            v = e / 2
+        else:
+            v = 0.5 * (e + math.sqrt(disc))
+        return v, (p / v if v > 0 else 0.0)
+
+
+class VoltageLookup:
+    """Efficiency and torque envelope interpolated linearly in DC-link voltage."""
+
+    def __init__(self, lookups: dict[float, EfficiencyLookup]):
+        self.v = np.array(sorted(lookups))
+        self.lk = [lookups[x] for x in self.v]
+
+    def _w(self, vdc):
+        vdc = float(np.clip(vdc, self.v[0], self.v[-1]))
+        j = int(np.clip(np.searchsorted(self.v, vdc) - 1, 0, len(self.v) - 2))
+        f = (vdc - self.v[j]) / (self.v[j + 1] - self.v[j])
+        return j, f
+
+    def t_max(self, n_rpm, vdc):
+        j, f = self._w(vdc)
+        return (1 - f) * self.lk[j].t_max(n_rpm) + f * self.lk[j + 1].t_max(n_rpm)
+
+    def eta_at(self, n_rpm, torque, vdc):
+        j, f = self._w(vdc)
+        return (1 - f) * self.lk[j].eta_at(n_rpm, torque) + f * self.lk[j + 1].eta_at(n_rpm, torque)
+
+
+def simulate_route_battery(
+    spec: EBikeSpec,
+    vlookup: VoltageLookup,
+    battery: BatteryModel,
+    route=None,
+    soc0: float = 1.0,
+    rider_power: float = 100.0,
+    rider_force_max: float = 60.0,
+    dt: float = 0.5,
+    repeat_until_empty: bool = False,
+    max_laps: int = 400,
+) -> dict:
+    """Route simulation with battery sag: the drive maps follow the terminal voltage.
+
+    With ``repeat_until_empty`` the route is ridden repeatedly until the
+    terminal voltage under load falls below the cut-off or SOC reaches zero;
+    the distance covered is the range to cut-off.
+    """
+    prof = speed_profile(route or DEFAULT_ROUTE, dt=dt)
+    v, grade, acc = prof["v"], prof["grade"], prof["a"]
+    lap_km = prof["x"][-1] / 1000
+    soc = soc0
+    q_as = battery.capacity_ah * 3600
+    e_term = e_chem = e_mech = 0.0
+    v_min = battery.ocv(soc)
+    deficit_s = 0.0
+    laps = 0
+    dist = 0.0
+    empty = False
+    trace_v, trace_soc = [], []
+    while True:
+        for k in range(len(v)):
+            p = 0.0
+            if v[k] > 0.0 and v[k] <= spec.v_max + 1e-6:
+                f_req = road_load_force(spec, v[k], grade[k], acc[k])
+                f_rider = min(min(rider_power / max(v[k], 0.5), rider_force_max), max(f_req, 0.0))
+                f_motor = f_req - f_rider
+                if f_motor > 0:
+                    n_rpm = spec.motor_speed_rpm(v[k])
+                    t_dem = motor_torque_demand(spec, f_motor)
+                    vt, _ = battery.terminal(soc, 0.0)
+                    # two fixed-point passes: voltage depends on power, power on voltage
+                    for _ in range(2):
+                        t_av = vlookup.t_max(n_rpm, vt)
+                        t = min(t_dem, t_av)
+                        p = t * n_rpm * 2 * math.pi / 60 / vlookup.eta_at(n_rpm, t, vt)
+                        vt, _ = battery.terminal(soc, p)
+                    if t_dem > t_av + 1e-9:
+                        deficit_s += dt
+                    e_mech += t * n_rpm * 2 * math.pi / 60 * dt / 3600
+            vt, i = battery.terminal(soc, p)
+            v_min = min(v_min, vt)
+            e_term += p * dt / 3600
+            e_chem += (p + i * i * battery.r_internal) * dt / 3600
+            soc -= i * dt / q_as
+            if repeat_until_empty and (soc <= 0.0 or (p > 0 and vt < battery.v_cutoff)):
+                empty = True
+                dist += prof["x"][k] / 1000
+                break
+            if k % 20 == 0:
+                trace_v.append(vt)
+                trace_soc.append(soc)
+        if empty:
+            break
+        laps += 1
+        dist += lap_km
+        if not repeat_until_empty or laps >= max_laps:
+            break
+    return {
+        "laps": laps,
+        "distance_km": dist,
+        "soc_end": soc,
+        "v_min": v_min,
+        "energy_terminal_Wh": e_term,
+        "energy_chemical_Wh": e_chem,
+        "energy_motor_Wh": e_mech,
+        "Wh_per_km_terminal": e_term / dist if dist else float("nan"),
+        "Wh_per_km_chemical": e_chem / dist if dist else float("nan"),
+        "torque_deficit_s": deficit_s,
+        "trace_v": np.array(trace_v),
+        "trace_soc": np.array(trace_soc),
+    }

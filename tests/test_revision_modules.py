@@ -98,3 +98,52 @@ def test_gear_drag_adds_constant_torque():
     b = motor_torque_demand(EBikeSpec(gear_no_load_loss=3.0), 50.0)
     spec = EBikeSpec()
     assert b - a == pytest.approx(3.0 / spec.motor_speed(spec.v_max))
+
+
+def test_battery_terminal_voltage_and_sag():
+    from srm_ebike.drive_cycle import BatteryModel
+
+    b = BatteryModel()
+    assert b.ocv(1.0) == pytest.approx(41.8)
+    assert b.ocv(0.0) == pytest.approx(30.0)
+    v, i = b.terminal(0.5, 300.0)
+    assert v * i == pytest.approx(300.0, rel=1e-9)
+    assert v == pytest.approx(b.ocv(0.5) - b.r_internal * i, rel=1e-9)
+
+
+def test_voltage_lookup_interpolates_linearly():
+    from srm_ebike.drive_cycle import EfficiencyLookup, VoltageLookup
+
+    sp, tq = np.array([100.0, 2000.0]), np.array([0.5, 6.0])
+    lo = EfficiencyLookup(sp, np.array([6.0, 4.0]), tq, np.full((2, 2), 0.6))
+    hi = EfficiencyLookup(sp, np.array([7.0, 5.0]), tq, np.full((2, 2), 0.8))
+    vl = VoltageLookup({30.0: lo, 42.0: hi})
+    assert vl.eta_at(1000, 2.0, 36.0) == pytest.approx(0.7)
+    assert vl.t_max(100, 36.0) == pytest.approx(6.5)
+    assert vl.eta_at(1000, 2.0, 50.0) == pytest.approx(0.8)  # clamped
+
+
+def test_battery_route_matches_fixed_voltage_when_flat():
+    from srm_ebike.drive_cycle import BatteryModel, EfficiencyLookup, VoltageLookup, simulate_route, simulate_route_battery
+
+    sp, tq = np.array([100.0, 2500.0]), np.array([0.2, 8.0])
+    lk = EfficiencyLookup(sp, np.array([8.0, 8.0]), tq, np.full((2, 2), 0.75))
+    vl = VoltageLookup({30.0: lk, 42.0: lk})
+    spec = EBikeSpec()
+    fixed = simulate_route(spec, lk)
+    bat = simulate_route_battery(spec, vl, BatteryModel(), soc0=1.0)
+    assert bat["energy_terminal_Wh"] == pytest.approx(fixed["energy_battery_Wh"], rel=1e-6)
+    assert bat["energy_chemical_Wh"] > bat["energy_terminal_Wh"]
+
+
+def test_spm_benchmark_consistency():
+    from srm_ebike.pm_benchmark import SPMBenchmark, SPMInputs
+
+    pm = SPMBenchmark(SPMInputs(d_outer=0.135, length=0.036, v_dc_min=30.0, base_speed_rpm=1608.0))
+    # no-load line-to-line EMF at base speed close to the design voltage
+    w_e = pm.inp.pole_pairs * 1608 * 2 * math.pi / 60
+    assert math.sqrt(3) * w_e * pm.psi_m == pytest.approx(30.0, rel=0.08)
+    op = pm.operating_point(1608, 1.5, 36.0)
+    assert op is not None and 0.5 < op["eta_system"] < op["eta_motor"] < 1.0
+    assert op["i_rms"] == pytest.approx(1.5 / pm.k_t / math.sqrt(2))
+    assert pm.operating_point(5000, 1.5, 36.0) is None  # beyond the voltage limit

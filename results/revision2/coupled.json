@@ -1,0 +1,46 @@
+[
+ {
+  "case": "launch_ccc",
+  "n_rpm": 80.45637830997319,
+  "T_mean_uncoupled": 6.637238943894872,
+  "T_mean_coupled": 6.68625023261279,
+  "mean_diff_pct": 0.7384288727920544,
+  "ripple_uncoupled_pct": 55.70807094426139,
+  "ripple_coupled_pct": 54.18299337344755,
+  "ripple_from_drive_sim_pct": 59.654420518509454,
+  "mesh_retries_cumulative": 0
+ },
+ {
+  "case": "200rpm_3Nm_ccc",
+  "n_rpm": 200,
+  "T_mean_uncoupled": 3.004358773978806,
+  "T_mean_coupled": 3.003603786760168,
+  "mean_diff_pct": -0.025129729018275176,
+  "ripple_uncoupled_pct": 193.7643633176706,
+  "ripple_coupled_pct": 193.7186738758439,
+  "ripple_from_drive_sim_pct": 196.49614263023176,
+  "mesh_retries_cumulative": 0
+ },
+ {
+  "case": "200rpm_3Nm_tsf",
+  "n_rpm": 200,
+  "T_mean_uncoupled": 3.0017988171299597,
+  "T_mean_coupled": 2.987316200289781,
+  "mean_diff_pct": -0.482464606139912,
+  "ripple_uncoupled_pct": 6.441666145445564,
+  "ripple_coupled_pct": 7.324474387512401,
+  "ripple_from_drive_sim_pct": 10.3862160180003,
+  "mesh_retries_cumulative": 1
+ },
+ {
+  "case": "rated_ccc",
+  "n_rpm": 1607.6256877969229,
+  "T_mean_uncoupled": 1.481778599670094,
+  "T_mean_coupled": 1.4603512566226848,
+  "mean_diff_pct": -1.4460556423327922,
+  "ripple_uncoupled_pct": 86.03590004544131,
+  "ripple_coupled_pct": 87.84203335390755,
+  "ripple_from_drive_sim_pct": 86.65873444681728,
+  "mesh_retries_cumulative": 1
+ }
+]

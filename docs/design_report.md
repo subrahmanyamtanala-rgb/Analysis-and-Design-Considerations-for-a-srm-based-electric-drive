@@ -8,7 +8,10 @@ the full generated tables are in [`results/results.md`](../results/results.md).*
 > Those results come from `scripts/run_fea.py` and `scripts/run_revision.py` and are
 > written to `results/fea/` and `results/revision/`. The 2-D FE model shows that the
 > analytical flux-linkage model errs by up to 23 % in flux linkage and 17 % in mean
-> torque (§ 12).
+> torque (§ 12). The second revision (`scripts/run_revision2.py`, `results/revision2/`)
+> adds battery-voltage/SOC sensitivity, iron-loss uncertainty, coupled three-phase FE checks,
+> three standardized missions, a quantitative test of the corner-speed rule and an
+> equal-envelope analytic surface-PM benchmark.
 
 ---
 

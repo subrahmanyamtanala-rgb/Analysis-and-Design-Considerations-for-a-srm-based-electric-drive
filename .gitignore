@@ -4,3 +4,4 @@ __pycache__/
 *.egg-info/
 results/*_log.txt
 results/fea/log_*.txt
+results/revision2_log_*.txt
