@@ -1,0 +1,290 @@
+{
+  "design": {
+    "configuration": "12/8, 3-phase",
+    "outer_diameter_mm": 135.3,
+    "bore_diameter_mm": 71.7,
+    "stack_length_mm": 35.9,
+    "air_gap_mm": 0.3,
+    "beta_s_deg": 15.0,
+    "beta_r_deg": 17.0,
+    "stator_pole_width_mm": 9.36,
+    "rotor_pole_width_mm": 10.51,
+    "stator_pole_height_mm": 24.78,
+    "rotor_pole_height_mm": 9.0,
+    "stator_yoke_mm": 7.02,
+    "rotor_yoke_mm": 19.06,
+    "turns_per_phase": 164,
+    "turns_per_pole": 41,
+    "wire_diameter_mm": 1.659,
+    "slot_area_mm2": 394.0,
+    "mean_turn_length_mm": 115.4,
+    "phase_resistance_mohm": 197.9,
+    "L_aligned_mH": 9.055,
+    "L_unaligned_mH": 1.371,
+    "L_sat_mH": 1.508,
+    "inductance_ratio": 6.6,
+    "psi_knee_mWb": 85.33,
+    "mass_iron_kg": 2.307,
+    "mass_copper_kg": 1.093,
+    "mass_active_kg": 3.4,
+    "rotor_inertia_kgm2": 0.0004133
+  },
+  "i_peak_required_A": 27.880878478819422,
+  "i_max_A": 30.668966326701366,
+  "points": {
+    "launch": {
+      "speed_rpm": 80.5,
+      "theta_on_deg": 4.52,
+      "theta_off_deg": 21.68,
+      "i_ref_A": 30.67,
+      "torque_avg_Nm": 6.813,
+      "torque_ripple_pct": 113.3,
+      "i_peak_A": 31.43,
+      "i_rms_A": 18.92,
+      "psi_peak_mWb": 126.51,
+      "b_pole_peak_T": 2.0,
+      "f_switch_kHz": 3.62,
+      "p_out_W": 55.9,
+      "eta_motor_pct": 20.7,
+      "eta_system_pct": 18.8,
+      "continuous_conduction": false
+    },
+    "hill": {
+      "speed_rpm": 964.6,
+      "theta_on_deg": -0.54,
+      "theta_off_deg": 17.56,
+      "i_ref_A": 20.45,
+      "torque_avg_Nm": 3.025,
+      "torque_ripple_pct": 144.7,
+      "i_peak_A": 20.73,
+      "i_rms_A": 12.07,
+      "psi_peak_mWb": 81.39,
+      "b_pole_peak_T": 1.478,
+      "f_switch_kHz": 2.44,
+      "p_out_W": 287.9,
+      "eta_motor_pct": 73.4,
+      "eta_system_pct": 70.8,
+      "continuous_conduction": false
+    },
+    "rated": {
+      "speed_rpm": 1607.6,
+      "theta_on_deg": -4.91,
+      "theta_off_deg": 17.56,
+      "i_ref_A": 15.44,
+      "torque_avg_Nm": 1.481,
+      "torque_ripple_pct": 147.7,
+      "i_peak_A": 15.66,
+      "i_rms_A": 9.48,
+      "psi_peak_mWb": 56.57,
+      "b_pole_peak_T": 1.028,
+      "f_switch_kHz": 3.64,
+      "p_out_W": 229.5,
+      "eta_motor_pct": 75.8,
+      "eta_system_pct": 72.8,
+      "continuous_conduction": false
+    },
+    "cruise": {
+      "speed_rpm": 1607.6,
+      "theta_on_deg": -4.91,
+      "theta_off_deg": 17.56,
+      "i_ref_A": 10.2,
+      "torque_avg_Nm": 0.882,
+      "torque_ripple_pct": 142.2,
+      "i_peak_A": 10.35,
+      "i_rms_A": 6.83,
+      "psi_peak_mWb": 48.63,
+      "b_pole_peak_T": 0.883,
+      "f_switch_kHz": 5.79,
+      "p_out_W": 133.1,
+      "eta_motor_pct": 75.6,
+      "eta_system_pct": 71.6,
+      "continuous_conduction": false
+    }
+  },
+  "losses": {
+    "launch": {
+      "copper": 212.59992659528567,
+      "core": 1.4369076351588872,
+      "converter_conduction": 27.310795657427228,
+      "converter_switching": 0.3592305519387321,
+      "mechanical": 0.06695439417228156
+    },
+    "hill": {
+      "copper": 86.4704497636958,
+      "core": 16.55877031721113,
+      "converter_conduction": 14.423279933478067,
+      "converter_switching": 0.16415632866136937,
+      "mechanical": 1.143822620839815
+    },
+    "rated": {
+      "copper": 53.39480269311021,
+      "core": 17.520436747787826,
+      "converter_conduction": 12.419407401152128,
+      "converter_switching": 0.1848768563134847,
+      "mechanical": 2.31988469106335
+    },
+    "cruise": {
+      "copper": 27.722522221002112,
+      "core": 12.944600750030492,
+      "converter_conduction": 9.579900498665872,
+      "converter_switching": 0.19406118044541315,
+      "mechanical": 2.31988469106335
+    }
+  },
+  "envelope": {
+    "speed_rpm": [
+      128.61005502375383,
+      328.67014061625974,
+      528.7302262087657,
+      728.7903118012716,
+      928.8503973937776,
+      1128.9104829862833,
+      1328.9705685787894,
+      1529.0306541712953,
+      1729.0907397638011,
+      1929.1508253563075
+    ],
+    "torque": [
+      6.816375891317174,
+      6.7006115850154035,
+      6.588845207433613,
+      6.0794318577122075,
+      5.209889962720336,
+      4.599440832459149,
+      4.0995957292275484,
+      3.779206838296864,
+      3.4657911949628972,
+      3.3092406192092714
+    ]
+  },
+  "eta_system_max": 0.7863916623457031,
+  "eta_motor_max": 0.8140169147588109,
+  "converter": {
+    "topology": "asymmetric half bridge, 3 legs, 6 MOSFETs + 6 diodes",
+    "device_voltage_rating_V": 63.0,
+    "selected_device_voltage_V": 100,
+    "phase_current_limit_A": 30.7,
+    "device_rms_current_peak_A": 18.92,
+    "battery_current_peak_A": 8.17,
+    "battery_current_rated_A": 8.74,
+    "dc_link_ripple_current_rms_peak_A": 15.42,
+    "dc_link_ripple_current_rms_rated_A": 10.89,
+    "dc_link_capacitance_min_uF": 3782.0,
+    "switching_frequency_rated_kHz": 3.64
+  },
+  "thermal": {
+    "motor_loss_W": 73.2,
+    "cooling_area_m2": 0.0749,
+    "temperature_rise_K": 39.1,
+    "winding_temp_estimate_C": 76.9,
+    "current_density_rated_A_mm2": 4.39
+  },
+  "cycle": {
+    "distance_km": 6.400456994726771,
+    "duration_min": 18.908333333333335,
+    "energy_battery_Wh": 32.31765867426987,
+    "energy_motor_Wh": 23.37525800596736,
+    "energy_rider_Wh": 25.549200890447192,
+    "cycle_efficiency": 0.7232967660673352,
+    "Wh_per_km": 5.049273622320382,
+    "range_km": 64.1676455337563,
+    "torque_deficit_s": 0.0
+  },
+  "trade": [
+    {
+      "gear_ratio": 5,
+      "A_peak_kA_per_m": 60.0,
+      "D_out_mm": 143.8,
+      "L_stk_mm": 38.1,
+      "active_mass_kg": 4.102,
+      "I_peak_A": 27.7,
+      "eta_motor_rated_pct": 70.6,
+      "eta_system_rated_pct": 68.5
+    },
+    {
+      "gear_ratio": 5,
+      "A_peak_kA_per_m": 45.0,
+      "D_out_mm": 158.3,
+      "L_stk_mm": 41.9,
+      "active_mass_kg": 5.514,
+      "I_peak_A": 29.2,
+      "eta_motor_rated_pct": 76.3,
+      "eta_system_rated_pct": 73.6
+    },
+    {
+      "gear_ratio": 5,
+      "A_peak_kA_per_m": 35.0,
+      "D_out_mm": 172.1,
+      "L_stk_mm": 45.6,
+      "active_mass_kg": 7.136,
+      "I_peak_A": 31.2,
+      "eta_motor_rated_pct": 81.0,
+      "eta_system_rated_pct": 78.0
+    },
+    {
+      "gear_ratio": 8,
+      "A_peak_kA_per_m": 60.0,
+      "D_out_mm": 122.9,
+      "L_stk_mm": 32.6,
+      "active_mass_kg": 2.526,
+      "I_peak_A": 29.3,
+      "eta_motor_rated_pct": 70.6,
+      "eta_system_rated_pct": 68.1
+    },
+    {
+      "gear_ratio": 8,
+      "A_peak_kA_per_m": 45.0,
+      "D_out_mm": 135.3,
+      "L_stk_mm": 35.9,
+      "active_mass_kg": 3.4,
+      "I_peak_A": 30.7,
+      "eta_motor_rated_pct": 75.8,
+      "eta_system_rated_pct": 72.8
+    },
+    {
+      "gear_ratio": 8,
+      "A_peak_kA_per_m": 35.0,
+      "D_out_mm": 147.1,
+      "L_stk_mm": 39.0,
+      "active_mass_kg": 4.404,
+      "I_peak_A": 32.0,
+      "eta_motor_rated_pct": 79.9,
+      "eta_system_rated_pct": 76.6
+    },
+    {
+      "gear_ratio": 11,
+      "A_peak_kA_per_m": 60.0,
+      "D_out_mm": 110.6,
+      "L_stk_mm": 29.3,
+      "active_mass_kg": 1.816,
+      "I_peak_A": 30.3,
+      "eta_motor_rated_pct": 69.9,
+      "eta_system_rated_pct": 67.3
+    },
+    {
+      "gear_ratio": 11,
+      "A_peak_kA_per_m": 45.0,
+      "D_out_mm": 121.7,
+      "L_stk_mm": 32.2,
+      "active_mass_kg": 2.447,
+      "I_peak_A": 31.6,
+      "eta_motor_rated_pct": 74.8,
+      "eta_system_rated_pct": 71.6
+    },
+    {
+      "gear_ratio": 11,
+      "A_peak_kA_per_m": 35.0,
+      "D_out_mm": 132.3,
+      "L_stk_mm": 35.1,
+      "active_mass_kg": 3.172,
+      "I_peak_A": 33.7,
+      "eta_motor_rated_pct": 80.2,
+      "eta_system_rated_pct": 77.0
+    }
+  ],
+  "k_c_range": [
+    0.5440158259149357,
+    0.6618531889290012
+  ],
+  "rotor_inertia": 0.0004133492595108497
+}
