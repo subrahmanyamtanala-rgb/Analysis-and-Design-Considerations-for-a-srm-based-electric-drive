@@ -6,12 +6,13 @@ This repository contains a design study and a reproducible Python toolchain for 
 36 V Li-ion battery through an asymmetric half-bridge converter.
 
 The full write-up is in **[`docs/design_report.md`](docs/design_report.md)**.
+The tables it quotes are regenerated into [`results/results.md`](results/results.md)
+along with the figures.
+
 An IEEE Transactions-format manuscript (IEEEtran, journal mode) is in
 **[`paper/`](paper/)**: [`paper/main.pdf`](paper/main.pdf) is built from `main.tex`
 with `make -C paper`, and its figures are regenerated with
 `python scripts/make_paper_figures.py`.
-The tables it quotes are regenerated into [`results/results.md`](results/results.md)
-along with the figures.
 
 ![efficiency map](results/fig_efficiency_map.png)
 
