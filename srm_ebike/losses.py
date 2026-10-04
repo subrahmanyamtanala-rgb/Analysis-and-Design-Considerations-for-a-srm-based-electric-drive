@@ -31,6 +31,7 @@ class ConverterParams:
     r_ds_on: float = 4e-3  # ohm, at 100 C
     v_diode: float = 0.8  # body/fast diode forward drop
     t_switch: float = 60e-9  # combined rise + fall time per transition
+    q_rr: float = 40e-9  # diode reverse-recovery charge [C]
     v_rating: float = 100.0
     i_rating: float = 60.0
 

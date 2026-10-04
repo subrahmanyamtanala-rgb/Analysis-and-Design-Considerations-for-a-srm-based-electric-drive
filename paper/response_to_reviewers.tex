@@ -1,0 +1,342 @@
+\documentclass[10pt]{article}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\newcommand{\rev}[1]{\par\medskip\noindent\textbf{Reviewer comment #1}\par}
+\newcommand{\resp}{\par\noindent\textcolor{blue!50!black}{\textbf{Response.}}~}
+\newcommand{\chg}{\par\noindent\textcolor{green!35!black}{\textbf{Changes.}}~}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Response to the Reviewer}\\[4pt]
+Manuscript: \emph{Corner-Speed-Based Design and Optimization of a Switched Reluctance Motor Drive for Low-Voltage Electric Bicycles}\\
+(previous title: \emph{Analysis and Design Considerations for a Switched Reluctance Motor-Based Drive System for an Electric Bike})
+\end{center}
+
+We thank the reviewer for a detailed and constructive review. We agree with
+the main criticisms, and the revision substantially extends the work. The
+largest changes are as follows.
+\begin{enumerate}[nosep]
+\item \textbf{FE model.} A nonlinear 2-D finite-element (FE) model of the full
+machine was added (Section~IV-B). It includes a mesh-convergence study and a
+quantitative comparison with the analytical model at 8, 15, 23 and 31~A
+(Table~VI, Fig.~3).
+\item \textbf{FE-based results.} All drive-level results are now computed with
+the FE flux-linkage characteristic instead of the analytical one.
+\item \textbf{TSF control.} Torque-sharing-function control (linear, cubic and
+exponential) was implemented and compared with current-reference control
+(Section~VII).
+\item \textbf{Sensitivity studies.} New studies cover PWM frequency, a
+four-node transient thermal network, the gear model, DC-link current sharing,
+air gap, pole arcs, the dwell limit and the convergence of the angle search.
+\item \textbf{Novelty.} A new subsection (II-E) positions $P_c=k_cV_{dc}I_{pk}$
+relative to the classical volt-second and converter volt-ampere arguments.
+\end{enumerate}
+\textbf{Experimental validation has not been added.} We state this explicitly
+in the abstract, the introduction and Section~X-D, and we reframed the paper as
+an analytical, FE and simulation-based design methodology (see comment~5).
+
+Because the FE characteristic and a more thorough angle search replaced the
+analytical model, several headline numbers changed. Table~1 below lists them.
+Line-by-line changes are given under each comment.
+
+\begin{center}
+\small
+\begin{tabular}{lcc}
+\hline
+Quantity & Original manuscript & Revised (FE-based)\\
+\hline
+Current for launch torque / converter limit & 27.9 A / 30.7 A & 26.5 A / 29.2 A\\
+Launch torque at limit (margin) & 6.81 N$\cdot$m (+14.9\%) & 6.63 N$\cdot$m (+11.6\%)\\
+Rated $\eta_{mot}$ / $\eta_{sys}$ & 75.8 / 72.8\% & 80.2 / 77.9\%\\
+Peak $\eta_{mot}$ / $\eta_{sys}$ (map) & 81.4 / 78.6\% & 80.6 / 78.3\%\\
+Torque ripple, launch / rated (current-ref.) & 113 / 148\% & 60 / 87\%\\
+Route consumption / estimated range & 5.05 Wh/km / 64 km & 5.12 Wh/km / 63 km\\
+\hline
+\multicolumn{3}{l}{\footnotesize Table 1: Main numerical changes. The rated-efficiency increase comes mostly from the improved angle search (comment 26).}
+\end{tabular}
+\end{center}
+
+%-----------------------------------------------------------------------------
+\rev{2--3 (strengths; novelty of the corner-speed argument)}
+The reviewer asks us to establish whether $P_c=k_cV_{dc}I_{pk}$ is new or a
+reformulation of established volt-second and energy relationships.
+\resp We agree that the relation is built from established ingredients. The
+volt-second limit is standard. The energy-conversion-loop argument that links
+converter volt-amperes to output power through the $\psi$--$i$ loop
+utilization is classical (Miller's energy ratio and converter volt-ampere
+requirement). We no longer present the relation as a new law. The
+contribution is now stated as how the relation is \emph{used} for low-voltage
+sizing:
+\begin{itemize}[nosep]
+\item choosing the turns at a mission-derived corner speed rather than at the
+speed limit;
+\item showing that the converter current is fixed before the machine is sized,
+so that enlarging the machine buys efficiency, not current;
+\item reporting $k_c$ for this machine class.
+\end{itemize}
+\chg New Section~II-E, \emph{Relationship to Existing Volt-Second and
+Energy-Based Methods}, as the reviewer suggested. Contribution~1 in the
+introduction and the conclusion are reworded accordingly. The trade study
+confirms the claim quantitatively: $I_{pk}$ varies by 22\% over a fourfold
+range of mass, with $k_c=0.54$--$0.66$ across nine designs.
+
+\rev{4 (electromagnetic model insufficiently validated; FE required)}
+\resp Done. We implemented a nonlinear 2-D magnetostatic FE model of the full
+12/8 cross-section with the following features:
+\begin{itemize}[nosep]
+\item vector potential formulation, first-order triangles and Newton iteration;
+\item M270-35A B--H curve and re-meshing at every rotor position;
+\item Arkkio torque, cross-checked against the co-energy derivative to within
+0.5\%.
+\end{itemize}
+Mesh convergence is shown in Table~V: halving the gap element size changes
+results by less than 0.1\%. As requested, Table~VI and Fig.~3 compare the
+analytical model and FE at 8, 15, 23 and 31~A:
+\begin{itemize}[nosep]
+\item flux linkage: RMS error 13--15\%, maximum 23\%;
+\item aligned inductance: $+5.7$\%; unaligned inductance: $-9.7$\%;
+\item mean torque: $-2$ to $-17$\%; peak torque: within $\pm$10\%.
+\end{itemize}
+Because these errors are significant, \emph{all drive-level results now use the
+FE characteristic}. It is imported as $\psi(i,\theta)$ tables, with torque
+computed from the co-energy of the same table so that the model stays
+energy-consistent. Fig.~4 shows the FE field solution.
+\chg Sections~IV-B and IV-C, Tables~V and VI, Figs.~3 and 4. Sections~VI--VIII
+were recomputed with the FE characteristic.
+
+\rev{5 (no experimental prototype)}
+\resp We fully agree that experimental validation would strengthen the paper.
+It is not available for this revision, and we have not presented any
+simulated quantity as measured. Following the reviewer's alternative
+recommendation, the paper has been reframed.
+\begin{itemize}[nosep]
+\item The title now emphasizes the design methodology.
+\item The abstract states that ``No prototype measurements are reported, and
+all performance figures are model predictions''.
+\item The introduction limits the scope explicitly.
+\item Section~X-D lists the planned dynamometer tests (phase voltage and
+current, torque and ripple, DC input power, efficiency map, temperature rise,
+acoustic noise).
+\end{itemize}
+\chg Title, abstract, Section~I (scope paragraph), Section~X-D and the conclusion.
+\emph{[Note to authors: if prototype data become available before
+resubmission, Section~X-D is where they would replace the stated limitation.]}
+
+\rev{6 (torque ripple; TSF only discussed, not implemented)}
+\resp Done. We implemented linear, cubic and exponential TSFs with current
+references obtained from the inverse FE torque characteristic and tracked by a
+three-level hysteresis controller. Table~XII and Fig.~11 compare them with
+current-reference control (CCC), in the format the reviewer proposed:
+\begin{itemize}[nosep]
+\item At 200~r/min, cubic TSF reduces ripple from 197\% to 10\%.
+\item At 500~r/min it reaches 33\%, and at 800~r/min and 1.5~N$\cdot$m, 39\%
+(against 83\% for CCC).
+\item The cost is 12--28\% higher RMS current and 7--12 points of efficiency.
+\item Above about 800~r/min, no TSF solution exists within $I_{max}$ at 36~V.
+\end{itemize}
+This is the known speed limit of TSF, and it is particularly restrictive at
+low voltage. We therefore recommend a hybrid controller: TSF for launch,
+walk-assist and low-speed climbing, and angle control above about 12~km/h. The
+FE-based current-reference ripple is itself lower than originally predicted
+(87\% at the rated point instead of 148\%).
+\chg New Section~VII, Table~XII, Fig.~11, and the abstract and conclusion.
+
+\rev{7 (launch margin should be stated)}
+\resp Done. The FE-based capability at the current limit is 6.63~N$\cdot$m,
+which exceeds the 5.93-N$\cdot$m requirement by 11.6\%. The original
+analytical figure was 6.81~N$\cdot$m (+14.9\%). The gear-sensitivity study
+shows that the margin shrinks to 6\% if $\eta_g=0.90$.
+\chg Section~VI-A, abstract, Table~XIII.
+
+\rev{8 (efficiency interpretation; comparison with PM motors)}
+\resp We agree that the comparison was not like-for-like. We removed the
+quantitative comparison with commercial PM hubs, and Section~X-C now states
+why a fair comparison requires identical boundaries, voltage, temperature and
+method. Efficiency boundaries are defined explicitly in Section~IV-F
+($\eta_{mot}$, $\eta_{sys}$ and $\eta_{conv}$, with the gear excluded, so that
+battery-to-wheel efficiency equals $\eta_{sys}\eta_g$). The Fig.~8 caption
+states the boundary.
+\chg Sections~IV-F and X-C, Fig.~8 caption.
+
+\rev{9 (thermal model too simplified; sensitivity)}
+\resp Done. The one-node model was replaced by a transient four-node network
+(winding, stator, rotor, shell) with temperature-dependent copper loss.
+Table~XI gives the sensitivity the reviewer requested: $h=15$/25/40~W/m$^2$K,
+ambient 35/45~$^\circ$C (25~$^\circ$C is also computed), continuous 250~W,
+6\% climb, and repeated launches (5~s every 60~s). Fig.~10 shows temperature
+versus time. One new finding is that a sustained 6\% climb at
+$h=15$~W/m$^2$K and 45~$^\circ$C reaches 142~$^\circ$C at steady state. We
+therefore now recommend class-H insulation or thermal derating for hot or
+mountainous use, instead of claiming a wide margin.
+\chg Section~VI-F, Table~XI, Fig.~10.
+
+\rev{10 (DC-link capacitor derivation)}
+\resp Done. Section~VI-E now gives the charge bound explicitly as
+Eq.~(16) and explains that it assumes the battery supplies only the mean
+current. It gives 1.56~mF for 5\% ripple at the rated point, but a meaningless
+30~mF at launch, where the stroke frequency is only 32~Hz. We therefore added
+a harmonic current-sharing analysis between the capacitor
+($R_{ESR}=20$~m$\Omega$) and the battery ($R_b=0.15~\Omega$, $L_b=1~\mu$H),
+with all assumptions stated (Table~X). The conclusions are:
+\begin{itemize}[nosep]
+\item 1~mF gives 4.8\% ripple at the rated point;
+\item the launch ripple is set by battery impedance;
+\item the bank is governed by ripple current (13.4~A RMS), not capacitance.
+\end{itemize}
+The original 3.8-mF recommendation is withdrawn in favor of 1--2.2~mF rated
+for at least 14~A RMS.
+\chg Section~VI-E, Eq.~(16), Table~X.
+
+\rev{11 (switching frequency; production PWM controller)}
+\resp Done. We implemented fixed-frequency peak-current-mode PWM in the
+simulator and accumulated switching energy per transition at the actual
+current, including diode reverse recovery. The hill, rated and launch points
+were evaluated at 4, 8, 16 and 20~kHz, as requested (Table~IX). At 36~V,
+switching loss is at most 1.9~W (launch, 20~kHz), and $\eta_{sys}$ changes by
+less than 0.1 point, so the efficiency results also hold for the recommended
+production PWM.
+\chg Section~VI-D, Table~IX.
+
+\rev{12 (gearbox efficiency assumption)}
+\resp Done. The gear model now includes an optional speed-proportional drag
+loss in addition to the mesh efficiency (Eq.~(2)). Table~XIII reports the
+sensitivity to $\eta_g=0.90$, 0.93, 0.95 and 0.97 and to two drag cases.
+Consumption ranges from 5.02 to 5.38~Wh/km, and the launch requirement ranges
+from 5.81 to 6.26~N$\cdot$m. The launch requirement stays within the envelope
+in all cases.
+\chg Section~II-B, Eq.~(2), Section~VIII, Table~XIII.
+
+\rev{13 (route model quasi-static; braking assumption)}
+\resp We now list the neglected effects explicitly: transients, battery sag,
+controller delay and thermal state. Battery sag is partly covered by design,
+because the turns are chosen at the 30-V end-of-discharge voltage. The
+mechanical-braking assumption is now justified quantitatively. The brakes
+dissipate 7.2~Wh on the route, so regeneration could return at most about
+5~Wh (about 15\% of battery energy on this hilly route). The asymmetric bridge
+supports regeneration without hardware change.
+\chg Section~VIII.
+
+\rev{14 (64-km range claim)}
+\resp Changed to ``an \emph{estimated range of about 63~km under these route
+and modeling assumptions}'' everywhere, with the gear sensitivity (60--65~km).
+\chg Abstract, Section~VIII, Table~XIII, conclusion.
+
+\rev{15 (position sensing details)}
+\resp Expanded. The text now covers extrapolation with speed and acceleration,
+quantization and sensor alignment ($\pm1^\circ$) as commutation-angle errors,
+the stand-still hill start (exciting the phase pair that gives positive torque
+throughout the 15$^\circ$ Hall sector), and direction reversal.
+\chg Section~X-A.
+
+\rev{16 (mechanical feasibility; tolerance stack-up)}
+\resp Done in two parts. First, FE air-gap sensitivity (Table~XV): at 0.35~mm
+the 30-A mean torque drops by 4.0\% (8.3\% at 15~A), and at 0.40~mm by 8.2\%
+(16\%). Second, a tolerance allocation in the format the reviewer suggested
+(Table~XVI), clearly labeled as an assumed design budget rather than a
+measurement. It gives a minimum local gap of 0.215~mm worst case and 0.26~mm
+by RSS, with the corresponding eccentricity and unbalanced magnetic pull.
+\chg Section~X-B, Tables~XV and XVI.
+
+\rev{17 (mutual coupling neglected)}
+\resp Quantified by FE with two phases excited simultaneously (Section~IV-D).
+In the commutation overlap, the second phase changes the flux linkage by at
+most 7.2\%, and the torque differs from superposition by at most
+0.36~N$\cdot$m (6.9\%). The mutual coupling is not yet included in the drive
+model. We state this, and we note that it bounds the achievable TSF ripple
+without online compensation.
+\chg Section~IV-D, Sections~VII and X-D.
+
+\rev{18 (literature review needs 2020--2026 references)}
+\resp Added verified recent references:
+\begin{itemize}[nosep]
+\item Terzi\'c and Mihi\'c (2022), an SRM design for a mid-drive e-bike, the
+closest prior work, which the paper now positions against;
+\item Lan \emph{et al.} (2021), a review of SRM EV powertrains;
+\item Fang \emph{et al.} (2021), a review of SRM control and vibration;
+\item Abdalmagid \emph{et al.} (2022), geometry and topology optimization;
+\item Hamouda \emph{et al.} (2020), torque control for light EVs;
+\item Bostanci \emph{et al.} (IEEE TTE, 2017);
+\item Xue \emph{et al.} (2009), TSF optimization.
+\end{itemize}
+\emph{[Note to authors: please add further 2023--2026 papers you consider
+essential, e.g.\ on SRM acoustic noise and integrated hub motors; we only
+included references whose bibliographic details we could verify.]}
+
+\rev{19 (FE/experimental plots)}
+\resp FE plots were added: the validation figure (Fig.~3) and the field plot
+(Fig.~4). All performance figures (Figs.~6--9 and 12) are now FE-based. No
+experimental plots are available; see comment~5.
+
+\rev{20 (title)}
+\resp Adopted the reviewer's preferred title: \emph{Corner-Speed-Based Design
+and Optimization of a Switched Reluctance Motor Drive for Low-Voltage Electric
+Bicycles}.
+
+\rev{21 (summary of major comments)}
+\resp Major comments 1--7 are addressed as described under comments~4--5
+(validation), 6 (torque ripple), 2--3 (novelty), 9 and 4 (loss and thermal
+models), 11 (controller mismatch), 12 (gear) and 14 (range).
+
+\rev{23 (``halves the launch current'' phrasing)}
+\resp Rephrased as the reviewer suggested. Section~II-D and the conclusion now
+read: ``For the specified 36-V, 500-W corner power, this approximately halves
+the peak current relative to sizing the turns for launch torque at 25~km/h''.
+The assumptions (one-stroke dwell, fixed $V_{dc}$, similar $k_c$) are stated
+next to the claim.
+
+\rev{25 (minor corrections)}
+\begin{itemize}[nosep]
+\item \emph{Placeholder authors.} These must be filled in by the authors; they
+are marked TODO in the source.
+\item \emph{Mass definition.} 3.4~kg is now defined as the active
+electromagnetic mass (laminations and copper), excluding housing, shaft,
+bearings and gear (Section~III-D, Table~IV).
+\item \emph{Efficiency definitions and Fig.~7 boundary.} See comment~8
+(Section~IV-F, Fig.~8 caption).
+\item \emph{1.1\% power-balance error.} With the FE tables it is 1.4\%. It is
+now explained as the error of the explicit time integration and the bilinear
+table interpolation (Section~IV-E).
+\item \emph{Repository link.} The repository URL is given in the first-page
+footnote and as reference [20].
+\item \emph{Optimization grid and convergence.} Full details are in
+Section~V-A, together with a convergence check against a 4$\times$ denser
+grid: $\eta_{sys}$ improves by at most 1.5 points and maximum torque by at most
+2.9\%.
+\item \emph{Why $0.55\tau_r$.} A dwell sweep shows that $0.55\tau_r$ maximizes
+base-speed torque (2.07, 2.76, 3.50, 3.95 and 3.77~N$\cdot$m for 0.40--0.60 and
+above). The original text also wrongly stated that the limit avoids continuous
+conduction. The optimum above base speed in fact runs in mild continuous
+conduction (minimum current 1.3--1.7~A), and this is now stated (Section~V-A).
+\item \emph{Pole-arc sensitivity.} Six FE pole-arc variants are reported in
+Table~III.
+\item \emph{Uncertainty.} Model-uncertainty statements are collected in
+Section~X-D. Error bars are not meaningful without measurements, but the
+FE-versus-analytical differences (Table~VI) and the grid-convergence bounds
+quantify the model uncertainty.
+\end{itemize}
+
+\rev{26 (additional change made by the authors)}
+\resp While addressing the dwell-limit question, we found that the original
+angle search was too coarse. A tighter dwell limit produced a \emph{better}
+rated point. We therefore added dwell-based turn-on candidates to the search
+and verified convergence (comment~25). This, more than the change to the FE
+characteristic, explains why the rated efficiency increased from 72.8\% to
+77.9\%. The trade study was recomputed with the improved search. It no longer
+supports the original claim that 11:1 gearing gains about four points at
+equal mass: at similar mass, 8:1 and 11:1 are within one point. Section~IX has
+been corrected accordingly.
+
+\bigskip
+All code, FE scripts and data needed to reproduce every table and figure are
+in the public repository cited in the manuscript.
+
+\end{document}

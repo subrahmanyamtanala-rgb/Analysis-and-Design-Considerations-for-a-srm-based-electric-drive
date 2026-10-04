@@ -3,6 +3,13 @@
 *Design study report. All numbers come from `python scripts/run_analysis.py`;
 the full generated tables are in [`results/results.md`](../results/results.md).*
 
+> **Revision note.** This report documents the analytical baseline. The FE-validated
+> results in the IEEE manuscript ([`paper/main.pdf`](../paper/main.pdf)) supersede it.
+> Those results come from `scripts/run_fea.py` and `scripts/run_revision.py` and are
+> written to `results/fea/` and `results/revision/`. The 2-D FE model shows that the
+> analytical flux-linkage model errs by up to 23 % in flux linkage and 17 % in mean
+> torque (§ 12).
+
 ---
 
 ## Abstract
@@ -20,11 +27,12 @@ and an energy simulation over a hilly urban route.
 
 The baseline machine is Ø135 mm × 36 mm with 3.4 kg of active material and
 drives the wheel through an 8 : 1 planetary gear. It meets the 5.9 N·m launch
-torque (8 % grade, 0.5 m/s²) at 31 A phase current. At the 250 W rated point it
-reaches ≈ 76 % motor efficiency and ≈ 73 % battery-to-shaft efficiency, and it
-consumes about 5 Wh/km on the test route with 100 W of rider input. A trade
-study shows that a higher gear ratio and lower electric loading raise the rated
-efficiency to ≈ 80 % at a similar mass.
+torque (8 % grade, 0.5 m/s²) at 31 A phase current. With the analytical
+magnetic model, the 250 W rated point reaches ≈ 81 % motor efficiency and
+≈ 79 % battery-to-shaft efficiency, and the route consumes about 4.9 Wh/km with
+100 W of rider input. The FE-based predictions in the paper are 80 % / 78 % and
+5.1 Wh/km. A trade study shows that rated efficiency is governed mainly by
+electric loading, i.e. by machine mass.
 
 ---
 
@@ -256,20 +264,23 @@ The alternatives were rejected for these reasons:
 |---|---|
 | Device voltage | ≥ 1.5 × 42 V = 63 V, so **100 V trench MOSFETs** are selected (≈ 4 mΩ) |
 | Phase current limit | **30.7 A** (1.1 × the 27.9 A needed for launch torque) |
-| Device RMS current (launch) | 18.9 A |
-| Battery current (rated / launch) | 8.7 A / 8.2 A |
-| DC-link ripple current (rated / launch) | 10.9 A / 15.4 A RMS |
-| DC-link capacitance for ≤ 5 % ripple | ≈ 3.8 mF (e.g. 6 × 680 µF, 63 V, low-ESR) |
-| Average switching frequency | 2.4–6 kHz (hysteresis, 2 % band) |
+| Device RMS current (launch) | 19.4 A |
+| Battery current (rated / launch) | 8.2 A / 8.5 A |
+| DC-link ripple current (rated / launch) | 7.3 A / 15.9 A RMS |
+| DC-link capacitance | 1–2.2 mF low-ESR, rated ≥ 14 A RMS (from battery/capacitor current-sharing analysis in the paper) |
+| Average switching frequency | 1.7–3.8 kHz (hysteresis, 2 % band) |
 
 The capacitor is chosen by **ripple current, not capacitance**. SRMs draw
 unipolar current pulses, and during demagnetisation the energy returns to the
-link. Polymer-hybrid capacitors or a larger electrolytic bank close to the
-bridge are recommended.
+link. At launch, the stroke frequency is only about 32 Hz, so the battery
+supplies most of the low-frequency ripple and the link ripple is set by the
+battery impedance. A simple charge-balance bound would therefore greatly
+oversize the bank.
 
 The switching frequency of a hysteresis controller falls in the audible range.
 A production design should use fixed-frequency PWM current control at
-≥ 16 kHz with the same soft-chopping states.
+≥ 16 kHz with the same soft-chopping states. At 36 V this costs less than 2 W
+of switching loss even at 20 kHz (paper, Table IX).
 
 ---
 
@@ -297,10 +308,11 @@ $$\theta_{adv} \approx \omega L_u i_{ref} / V_{dc}$$
 
 θ_on is then searched between the overlap angle and up to 1.6 × θ_adv before
 it. θ_off is searched between 45 % and 95 % of the overlap-to-aligned interval.
-The dwell is capped at 55 % of the rotor pole pitch, so that the current
-extinguishes before the negative-torque region. Without this cap the optimiser
-drifts into continuous conduction and negative torque at speed. This was
-observed during development.
+Additional turn-on candidates are defined by the dwell, θ_off − d·τ_r with
+d = 0.35–0.5. The dwell is capped at 55 % of the rotor pole pitch, which
+maximises base-speed torque in a dwell sweep. Longer dwells push tail current
+into the negative-torque region. At and above base speed, the optimum runs in
+mild continuous conduction, with a pedestal of about 5 % of peak current.
 
 At each operating point, the chopping reference is solved with Brent's method
 for the target torque, and the angle pair with the lowest battery power is
@@ -309,14 +321,16 @@ kept. In a controller this becomes a 2-D look-up table θ_on, θ_off, i_ref = f(
 ### 7.3 Torque ripple
 
 With β_s equal to the stroke angle, only one phase conducts for most of the
-stroke. The peak-to-peak torque ripple is therefore 110–150 % of the mean
-across the operating range. The gear and wheel inertia filter much of this,
+stroke. With the analytical model, the peak-to-peak torque ripple is
+113–179 % of the mean across the operating range. The FE model predicts
+60–100 %. The gear and wheel inertia filter much of this,
 but on an e-bike it is felt as vibration and heard as noise. The mitigations
 are, in order of cost:
 
 1. **Torque-sharing functions (TSF)** that overlap incoming and outgoing phase
-   currents. These typically reduce ripple to 20–40 % at low speed, at the cost
-   of a few percent of RMS current.
+   currents. TSF is implemented in `srm_ebike/tsf.py`. With the FE model, cubic
+   TSF reduces ripple to 10–33 % below 500 rpm, at the cost of 12–28 % more
+   RMS current. It is infeasible above about 800 rpm at 36 V (paper, § VII).
 2. A wider β_r, which gives more phase overlap but raises L_u.
 3. Pole shaping (tapered or notched rotor poles).
 4. Mechanically, a compliant gear coupling and a stiff, round stator yoke.
@@ -337,8 +351,8 @@ but they must handle stand-still start-up on a hill.
 
 ![torque-speed](../results/fig_torque_speed.png)
 
-The envelope at the 30.7 A limit delivers 6.8 N·m at low speed and ≈ 3.7 N·m
-at 25 km/h. The power rises above the 500 W target from about 900 rpm onwards.
+The envelope at the 30.7 A limit delivers about 6.8 N·m at low speed, and its
+power exceeds the 500 W target well before 25 km/h.
 All duty points of § 2.2 lie inside the envelope. A steady climb of 8 % at full
 speed without pedalling lies outside it. That is acceptable, because a
 pedelec rider contributes power on such a climb.
@@ -349,27 +363,29 @@ pedelec rider contributes power on such a climb.
 
 | Point | Speed | Torque | I_rms | η_motor | η_system |
 |---|---|---|---|---|---|
-| Launch | 80 rpm | 6.8 N·m | 18.9 A | 21 % | 19 % |
-| Hill 6 % | 965 rpm | 3.0 N·m | 12.1 A | 73 % | 71 % |
-| Rated 250 W | 1608 rpm | 1.48 N·m | 9.5 A | 76 % | 73 % |
-| Cruise | 1608 rpm | 0.88 N·m | 6.8 A | 76 % | 72 % |
+| Launch | 80 rpm | 6.8 N·m | 19.4 A | 20 % | 18 % |
+| Hill 6 % | 965 rpm | 3.0 N·m | 11.2 A | 76 % | 74 % |
+| Rated 250 W | 1608 rpm | 1.48 N·m | 8.1 A | 81 % | 79 % |
+| Cruise | 1608 rpm | 0.88 N·m | 5.6 A | 80 % | 77 % |
 
 ![losses](../results/fig_loss_breakdown.png)
 
 Copper loss dominates at every point. This is the classic SRM penalty: the
 machine must carry its own magnetising current, and that current flows as
 unipolar pulses with a high RMS-to-mean ratio. At the rated point, iron loss is
-about 20 % of the total. Conduction loss in the MOSFETs and diodes is about
-14 %, and it matters at only 36 V because of the diode drops.
+about 21 % of the total. Conduction loss in the MOSFETs and diodes is about
+12 %, and it matters at only 36 V because of the diode drops.
 
 ### 8.3 Thermal check
 
-At the continuous rated point the motor dissipates 73 W. The hub shell has
+At the continuous rated point the motor dissipates 55 W. The hub shell has
 0.075 m² of surface and a lumped convection coefficient of h ≈ 25 W/m²K while
-riding. This gives a temperature rise of about 39 K, or a winding hot spot of
-about 77 °C at 30 °C ambient. Class F insulation (155 °C) leaves a large margin
-for sustained climbing. The launch point (≈ 240 W of loss) is limited to tens of
-seconds by the copper's thermal capacity, roughly 1.1 kg × 385 J/kgK ≈ 420 J/K.
+riding. This gives a temperature rise of about 29 K, or a winding hot spot of
+about 65 °C at 30 °C ambient. The launch point (≈ 250 W of loss) is limited to
+tens of seconds by the copper's thermal capacity, roughly 420 J/K. The paper
+replaces this single-node estimate with a four-node transient network
+(`srm_ebike/thermal.py`). That network shows that a *sustained* 6 % climb at
+low airflow and 45 °C ambient approaches the class-F limit.
 
 ---
 
@@ -386,10 +402,10 @@ Braking is mechanical. The efficiency is interpolated from the map in § 8.2.
 |---|---|
 | Rider energy | 25.5 Wh |
 | Motor shaft energy | 23.4 Wh |
-| Battery energy | 32.3 Wh |
-| Cycle-average drive efficiency | 72 % |
-| **Consumption** | **5.05 Wh/km** |
-| **Range** (90 % of a 36 V 10 Ah pack) | **≈ 64 km** |
+| Battery energy | 31.5 Wh |
+| Cycle-average drive efficiency | 74 % |
+| **Consumption** | **4.92 Wh/km** (FE-based: 5.12 Wh/km) |
+| **Estimated range** (90 % of a 36 V 10 Ah pack, model assumptions) | **≈ 66 km** (FE-based: ≈ 63 km) |
 | Torque deficit | none |
 
 ---
@@ -398,30 +414,30 @@ Braking is mechanical. The efficiency is interpolated from the map in § 8.2.
 
 | Gear | A_peak (kA/m) | D_o (mm) | L (mm) | Active mass (kg) | I_peak (A) | η_motor rated | η_sys rated |
 |---|---|---|---|---|---|---|---|
-| 5 | 60 | 144 | 38 | 4.1 | 27.7 | 70.6 % | 68.5 % |
-| 5 | 45 | 158 | 42 | 5.5 | 29.2 | 76.3 % | 73.6 % |
-| 5 | 35 | 172 | 46 | 7.1 | 31.2 | 81.0 % | 78.0 % |
-| 8 | 60 | 123 | 33 | 2.5 | 29.3 | 70.6 % | 68.1 % |
-| **8** | **45** | **135** | **36** | **3.4** | **30.7** | **75.8 %** | **72.8 %** |
-| 8 | 35 | 147 | 39 | 4.4 | 32.0 | 79.9 % | 76.6 % |
-| 11 | 60 | 111 | 29 | 1.8 | 30.3 | 69.9 % | 67.3 % |
-| 11 | 45 | 122 | 32 | 2.4 | 31.6 | 74.8 % | 71.6 % |
-| 11 | 35 | 132 | 35 | 3.2 | 33.7 | 80.2 % | 77.0 % |
+| 5 | 60 | 144 | 38 | 4.1 | 27.7 | 75.0 % | 73.2 % |
+| 5 | 45 | 158 | 42 | 5.5 | 29.2 | 81.7 % | 79.8 % |
+| 5 | 35 | 172 | 46 | 7.1 | 31.2 | 84.2 % | 81.9 % |
+| 8 | 60 | 123 | 33 | 2.5 | 29.3 | 76.9 % | 75.1 % |
+| **8** | **45** | **135** | **36** | **3.4** | **30.7** | **80.9 %** | **78.8 %** |
+| 8 | 35 | 147 | 39 | 4.4 | 32.0 | 82.7 % | 80.3 % |
+| 11 | 60 | 111 | 29 | 1.8 | 30.3 | 77.4 % | 75.7 % |
+| 11 | 45 | 122 | 32 | 2.4 | 31.6 | 79.8 % | 77.6 % |
+| 11 | 35 | 132 | 35 | 3.2 | 33.7 | 80.9 % | 78.2 % |
 
 The trade study leads to three observations:
 
 * **The peak current is nearly independent of machine size** (28–34 A), as
   § 2.3 predicts. It is set by the volt-seconds and the torque requirement.
   Machine size mainly buys efficiency through lower copper loss.
-* **Efficiency is set by electric loading.** Each step from 60 to 45 to
-  35 kA/m adds about 5 points of efficiency and about 30 % more mass.
-* **A higher gear ratio makes the machine smaller.** The 11 : 1 / 35 kA/m
-  variant matches the baseline's diameter (132 mm) at a slightly lower mass
-  (3.2 kg) and gains about 4 points of efficiency. The cost is a two-stage
-  gear, more gear noise and higher iron-loss frequency (350 Hz).
+* **Efficiency is set by electric loading, i.e. by mass.** For G = 8, going
+  from 60 to 35 kA/m raises η_sys from 75 % to 80 % while mass grows from
+  2.5 to 4.4 kg.
+* **At similar mass, the gear ratio matters little.** The 8 : 1 / 45 kA/m
+  baseline (3.4 kg, 78.8 %) and the 11 : 1 / 35 kA/m variant (3.2 kg, 78.2 %)
+  are within a point. Choose the ratio on gear cost, noise and diameter.
 
 **Recommendation:** use the 8 : 1 single-stage baseline for cost and
-simplicity. If range is the priority, use 11 : 1 at 35 kA/m. Raising the
+simplicity. Choose 11 : 1 when the smallest diameter matters. Raising the
 efficiency further would need thinner laminations (0.2 mm), a smaller air gap
 (0.25 mm) and fill factors above 0.5 (segmented stator with pre-wound coils).
 
@@ -447,19 +463,23 @@ efficiency further would need thinner laminations (0.2 mm), a smaller air gap
 
 ## 12. Modelling assumptions and limitations
 
-* The flux-linkage model is analytical. L_a, L_u and the knee are estimated
-  from permeance models, not from FEA. Expect ±15 % on λ and on peak torque.
-  The first validation step should be a 2-D FEA ψ(i, θ) table, which can
-  replace `MagneticModel` directly because both expose `psi`, `torque` and
-  `current`.
-* There is no mutual coupling between phases. This is a good approximation for
-  12/8 machines with short-pitched concentrated coils.
+* **FE validation (added in revision).** A nonlinear 2-D FE model
+  (`srm_ebike/fea.py`) gives L_a = 8.56 mH and L_u = 1.52 mH (ratio 5.6
+  instead of 6.6). The analytical model errs by up to 23 % in flux linkage and
+  by 2–17 % in mean torque. Mutual coupling between phases is below 7 %. The
+  paper's drive results use the FE tables (`srm_ebike/magnetics_fea.py`).
+
+* The analytical flux-linkage model in this report estimates L_a, L_u and the
+  knee from permeance models. Its FE-measured errors are listed above.
+* The drive model neglects mutual coupling. FE puts its effect at ≤ 7 % in flux
+  and torque during phase overlap.
+* No prototype measurements exist yet. All numbers are model predictions.
 * Iron loss is estimated from peak pole flux density with a non-sinusoidal
   factor of 1.3, not from the actual flux waveform in each region. Expect
   ±30 %.
 * The converter uses ideal timing (no dead time or blanking) and a lumped
   switching-loss estimate. Switching loss is negligible at 36 V and a few kHz.
-* The thermal model is a single lumped node.
+* The thermal model in this report is a single lumped node. The paper uses a four-node transient network.
 * The route model is quasi-static. It has no regeneration and uses a constant
   rider power.
 

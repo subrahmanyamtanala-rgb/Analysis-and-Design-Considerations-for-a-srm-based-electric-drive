@@ -123,10 +123,13 @@ def simulate_route(
     p_batt = np.zeros(n)
     p_rider = np.zeros(n)
     deficit = np.zeros(n)
+    p_brake = np.zeros(n)
     for k in range(n):
         if v[k] <= 0.0:
             continue
         f_req = road_load_force(spec, v[k], grade[k], acc[k])
+        if f_req < 0:
+            p_brake[k] = -f_req * v[k]  # dissipated in the brakes (no regeneration)
         f_rider = min(rider_power / max(v[k], 0.5), rider_force_max)
         f_rider = min(f_rider, max(f_req, 0.0))
         p_rider[k] = f_rider * v[k]
@@ -163,4 +166,5 @@ def simulate_route(
         "Wh_per_km": e_batt / dist_km,
         "range_km": usable / (e_batt / dist_km) if e_batt > 0 else float("inf"),
         "torque_deficit_s": float((deficit > 1e-6).sum() * dt),
+        "energy_braking_Wh": float(p_brake.sum() * dt / 3600),
     }

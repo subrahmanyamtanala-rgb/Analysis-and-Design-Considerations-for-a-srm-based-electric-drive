@@ -45,8 +45,10 @@ class SRMDrive:
     soft_chopping: bool = True
     min_steps: int = 1800
 
+    magnetic_model: object | None = None  # e.g. TabulatedMagneticModel from FEA
+
     def __post_init__(self) -> None:
-        self.model = MagneticModel.from_design(self.design)
+        self.model = self.magnetic_model or MagneticModel.from_design(self.design)
 
     # ------------------------------------------------------------------
     @property
@@ -76,7 +78,20 @@ class SRMDrive:
         theta_off: float,
         i_ref: float,
         max_periods: int = 6,
+        control: str = "hysteresis",
+        f_pwm: float | None = None,
+        ref_profile=None,
     ) -> "SimResult":
+        """Steady-state single-phase simulation over one rotor pole pitch.
+
+        control:
+          ``"hysteresis"`` sampled hysteresis (soft or hard chopping) inside
+                           [theta_on, theta_off], demagnetise outside;
+          ``"pwm"``        fixed-frequency peak-current-mode PWM at ``f_pwm``
+                           (switch on at every PWM clock, soft-chop at i_ref);
+          ``"tsf"``        three-level hysteresis tracking a current profile
+                           ``ref_profile(angle after theta_on)`` (torque-sharing).
+        """
         m = self.phases
         mm = self.model
         cv = self.converter
@@ -84,13 +99,18 @@ class SRMDrive:
         omega = n_rpm * 2 * math.pi / 60
         tau = mm.tau_r
         period = tau / omega
-        n = max(self.min_steps, int(math.ceil(period * self.f_sample)))
+        f_s = self.f_sample if control != "pwm" else max(self.f_sample, 50 * f_pwm)
+        n = max(self.min_steps, int(math.ceil(period * f_s)))
         n = int(math.ceil(n / m) * m)
         dt = period / n
         dth = tau / n
         dwell = (theta_off - theta_on) % tau
         h = 0.5 * max(self.hysteresis_band, self.hysteresis_band_rel * i_ref)
         vdc = self.v_dc
+        if control == "pwm":
+            t_pwm = 1.0 / f_pwm
+        if control == "tsf":
+            refs = np.array([ref_profile(k * dth) for k in range(n)])
 
         psi0 = 0.0
         for _ in range(max_periods):
@@ -102,42 +122,59 @@ class SRMDrive:
             idc = np.empty(n)
             psi = psi0
             i = mm.current(psi, theta_on)
-            sw_on = True
+            state = 1  # +1 magnetise, 0 freewheel, -1 demagnetise
             transitions = 0
+            e_sw = 0.0
+            pwm_clock = 0.0
             for k in range(n):
                 theta = theta_on + k * dth
                 rel = k * dth
-                if rel < dwell:
-                    if i >= i_ref + h:
-                        if sw_on:
-                            transitions += 1
-                        sw_on = False
-                    elif i <= i_ref - h:
-                        if not sw_on:
-                            transitions += 1
-                        sw_on = True
-                    if sw_on:
-                        v = vdc - 2 * cv.r_ds_on * i
-                        pc = 2 * cv.r_ds_on * i * i
-                        idc_k = i
-                    elif self.soft_chopping:
-                        v = -(cv.r_ds_on * i + cv.v_diode) if i > 0 else 0.0
-                        pc = cv.r_ds_on * i * i + cv.v_diode * i
-                        idc_k = 0.0
+                prev = state
+                if control == "tsf":
+                    ref = refs[k]
+                    hb = 0.5 * max(self.hysteresis_band, self.hysteresis_band_rel * max(ref, 1.0))
+                    if ref <= 0.0:
+                        state = -1
+                    elif i < ref - hb:
+                        state = 1
+                    elif i > ref + hb:
+                        state = -1
+                    elif state == 1 and i >= ref:
+                        state = 0
+                elif rel < dwell:
+                    if control == "pwm":
+                        t_now = k * dt
+                        if t_now >= pwm_clock:
+                            pwm_clock += t_pwm
+                            state = 1 if i < i_ref else 0
+                        elif state == 1 and i >= i_ref:
+                            state = 0
                     else:
-                        v = -(vdc + 2 * cv.v_diode) if i > 0 else 0.0
-                        pc = 2 * cv.v_diode * i
-                        idc_k = -i
+                        if i >= i_ref + h:
+                            state = 0 if self.soft_chopping else -1
+                        elif i <= i_ref - h:
+                            state = 1
                 else:
-                    if sw_on and k > 0:
-                        transitions += 1
-                        sw_on = False
-                    if i > 0:
-                        v = -(vdc + 2 * cv.v_diode)
-                        pc = 2 * cv.v_diode * i
-                        idc_k = -i
-                    else:
-                        v, pc, idc_k = 0.0, 0.0, 0.0
+                    state = -1
+                if state != prev and i > 0:
+                    transitions += 1
+                    e_sw += 0.5 * vdc * i * cv.t_switch
+                    if state == 1:
+                        e_sw += cv.q_rr * vdc  # diode reverse recovery
+                if state == 1:
+                    v = vdc - 2 * cv.r_ds_on * i
+                    pc = 2 * cv.r_ds_on * i * i
+                    idc_k = i
+                elif i <= 0.0:
+                    v, pc, idc_k = 0.0, 0.0, 0.0
+                elif state == 0:
+                    v = -(cv.r_ds_on * i + cv.v_diode)
+                    pc = cv.r_ds_on * i * i + cv.v_diode * i
+                    idc_k = 0.0
+                else:
+                    v = -(vdc + 2 * cv.v_diode)
+                    pc = 2 * cv.v_diode * i
+                    idc_k = -i
                 th[k] = theta
                 cur[k] = i
                 flux[k] = psi
@@ -166,6 +203,7 @@ class SRMDrive:
             i_dc_phase=idc,
             transitions=transitions,
             continuous=psi0 > 0.0,
+            e_switch=e_sw,
         )
 
 
@@ -184,6 +222,7 @@ class SimResult:
     i_dc_phase: np.ndarray
     transitions: int
     continuous: bool
+    e_switch: float = 0.0  # switching energy per phase per period [J]
 
     # ---- waveforms --------------------------------------------------------
     @property
@@ -241,14 +280,12 @@ class SimResult:
 
     def losses(self) -> dict:
         d = self.drive.design
-        cv = self.drive.converter
         m = d.phases
         p_cu = m * d.phase_resistance * self.i_rms**2
         p_cond = m * float(self.p_conv_inst.mean())
-        # each transition dissipates ~0.5 V I t_sw in the switching device
-        i_sw = self.drive.i_max if self.transitions else 0.0
-        i_sw = min(i_sw, self.i_peak)
-        p_sw = m * self.switching_frequency * 0.5 * self.drive.v_dc * i_sw * cv.t_switch
+        # 0.5 V i t_sw per transition at the actual current + diode recovery
+        period = self.drive.model.tau_r / self.omega
+        p_sw = m * self.e_switch / period
         p_fe = core_loss(d, self.drive.iron, self.n_rpm, self.b_pole_peak)["total"]
         p_mech = mechanical_loss(self.n_rpm)
         return {

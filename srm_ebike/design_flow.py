@@ -26,6 +26,7 @@ class DriveDesign:
 def design_drive(
     spec: EBikeSpec | None = None,
     current_margin: float = 1.10,
+    fea_table: str | None = None,
     **sizing_overrides,
 ) -> DriveDesign:
     """Size the machine and set the converter current limit.
@@ -35,6 +36,9 @@ def design_drive(
     3. simulation-based current requirement: the smallest chopping current
        that produces the launch torque with optimal angles; the converter limit
        is set ``current_margin`` above it.
+
+    With ``fea_table`` (an .npz written by ``scripts/run_fea.py``) the drive
+    uses the FEA flux-linkage characteristic instead of the analytical one.
     """
     spec = spec or EBikeSpec()
     req = derive_requirements(spec)
@@ -45,7 +49,12 @@ def design_drive(
         **sizing_overrides,
     )
     design = size_srm(inputs)
-    drive = SRMDrive(design, v_dc=spec.battery_voltage, i_max=100.0)
+    model = None
+    if fea_table is not None:
+        from .magnetics_fea import load_fea_model
+
+        model = load_fea_model(design, fea_table)
+    drive = SRMDrive(design, v_dc=spec.battery_voltage, i_max=100.0, magnetic_model=model)
     i_req = required_peak_current(drive, 0.1 * req.corner_speed_rpm, req.peak_torque, i_hi=100.0)
     drive.i_max = current_margin * i_req
     return DriveDesign(spec, req, inputs, design, drive, i_req)

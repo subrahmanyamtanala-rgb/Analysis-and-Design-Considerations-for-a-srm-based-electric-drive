@@ -3,7 +3,7 @@ name = "srm-ebike"
 version = "0.1.0"
 description = "Analysis and design of a switched reluctance motor drive for an electric bike"
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.24", "scipy>=1.10", "matplotlib>=3.7"]
+dependencies = ["numpy>=1.24", "scipy>=1.10", "matplotlib>=3.7", "scikit-fem>=10", "gmsh>=4.11"]
 
 [project.optional-dependencies]
 test = ["pytest>=7"]

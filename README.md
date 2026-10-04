@@ -10,9 +10,10 @@ The tables it quotes are regenerated into [`results/results.md`](results/results
 along with the figures.
 
 An IEEE Transactions-format manuscript (IEEEtran, journal mode) is in
-**[`paper/`](paper/)**: [`paper/main.pdf`](paper/main.pdf) is built from `main.tex`
-with `make -C paper`, and its figures are regenerated with
-`python scripts/make_paper_figures.py`.
+**[`paper/`](paper/)**. It is revised after peer review and its results are
+FE-based. [`paper/main.pdf`](paper/main.pdf) is the manuscript, and
+[`paper/response_to_reviewers.pdf`](paper/response_to_reviewers.pdf) is the
+point-by-point reply. The previous version is kept as `paper/main_v1.tex`.
 
 ![efficiency map](results/fig_efficiency_map.png)
 
@@ -27,16 +28,30 @@ with `make -C paper`, and its figures are regenerated with
 | Losses | `srm_ebike/losses.py` | Copper, iron (Bertotti, non-sinusoidal factor), MOSFET conduction/switching, mechanical |
 | Control & performance | `srm_ebike/performance.py` | Turn-on/turn-off angle optimisation, torque–speed envelope, minimum-loss operating points, efficiency map |
 | Design flow | `srm_ebike/design_flow.py` | End-to-end design, converter ratings (devices, DC-link capacitor), thermal check |
-| Route | `srm_ebike/drive_cycle.py` | Pedelec ride over a hilly urban route: rider power + motor assist, battery Wh/km and range |
+| Route | `srm_ebike/drive_cycle.py` | Pedelec ride over a hilly urban route: rider power + motor assist, battery Wh/km, range, braking energy |
+| 2-D FEA | `srm_ebike/fea.py` | Nonlinear magnetostatic FE solver: gmsh mesh, scikit-fem Newton iteration with the M270-35A B–H curve, Arkkio torque, coil flux linkage + end-winding term |
+| FE-based magnetics | `srm_ebike/magnetics_fea.py` | Energy-consistent ψ(i, θ) model from FE tables; drop-in replacement for the analytical model |
+| Torque sharing | `srm_ebike/tsf.py` | Linear / cubic / cosine / exponential TSF, inverse torque map, three-level current tracking |
+| Thermal | `srm_ebike/thermal.py` | Four-node transient thermal network (winding, stator, rotor, shell) |
+| DC link | `srm_ebike/dclink.py` | Charge bound and harmonic current sharing between capacitor and battery |
 
 ## Quick start
 
 ```bash
 pip install -r requirements.txt
-python -m pytest                       # 16 physics / consistency tests
-python scripts/run_analysis.py         # full analysis -> results/  (~3-4 min)
+python -m pytest                       # 27 physics / consistency tests
+python scripts/run_analysis.py         # analytical-model analysis -> results/  (~4 min)
 python scripts/run_analysis.py --quick --out /tmp/srm   # coarse smoke run (~40 s)
+
+# paper pipeline (order matters: the revision step overwrites the drive figures with FE-based ones)
+python scripts/run_fea.py              # FE tables + mutual/air-gap/pole-arc/mesh studies -> results/fea/ (~10 min on 4 cores)
+python scripts/make_paper_figures.py   # geometry, trade study, analytical figures -> paper/figures/
+python scripts/run_revision.py         # FE-based drive results, TSF, PWM, thermal, gear, DC link -> results/revision/
+make -C paper                          # builds paper/main.pdf
 ```
+
+The FE solver needs `gmsh` and `scikit-fem` (in `requirements.txt`). On a
+headless Linux machine gmsh also needs `libglu1-mesa`.
 
 Every design parameter is a dataclass field (`EBikeSpec`, `SizingInputs`,
 `SRMDrive`, `ConverterParams`, `IronLossCoefficients`), so you can run trade
@@ -56,11 +71,12 @@ print(dd.design.summary(), dd.drive.i_max)
 |---|---|
 | Machine | 12/8 SRM, Ø135 mm × 36 mm stack, 0.3 mm air gap, 41 turns/pole, ≈3.4 kg active mass |
 | Gear | 8 : 1 planetary; 25 km/h = 1608 rpm |
-| Torque | 5.9 N·m launch requirement (8 % grade, 0.5 m/s²) met at ≈31 A phase current |
-| Converter | 3 × asymmetric half bridge, 100 V MOSFETs, ≈31 A chopping limit |
-| Efficiency | ≈ 76 % motor and ≈ 73 % battery-to-shaft at the 250 W rated point |
-| Route | See `results/results.md` for Wh/km and estimated range |
+| Torque | 5.93 N·m launch requirement (8 % grade, 0.5 m/s²) met at 26.5 A (FE); 29.2 A limit gives an 11.6 % margin |
+| Converter | 3 × asymmetric half bridge, 100 V MOSFETs, 1–2.2 mF DC link rated ≥ 14 A RMS |
+| Efficiency (FE-based) | 80.2 % motor and 77.9 % battery-to-shaft at the 250 W rated point |
+| Route (FE-based) | 5.1 Wh/km on a hilly 6.4 km route; estimated range ≈ 63 km under the model assumptions |
+| Torque ripple | 60–100 % with current-reference control; 10–33 % with cubic TSF below 500 rpm |
 
-These results come from analytical and lumped models. The modelling
-assumptions and their limits are listed in section 9 of the report. Before
-building hardware, check the magnetic design with 2-D FEA.
+These are predictions from analytical, 2-D FE and lumped models. No prototype
+has been measured yet. The model limitations are listed in section X-D of the
+paper.

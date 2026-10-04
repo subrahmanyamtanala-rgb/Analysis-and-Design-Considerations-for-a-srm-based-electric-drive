@@ -25,6 +25,8 @@ class AngleGrid:
     n_on: int = 5
     off_fractions: tuple[float, ...] = (0.45, 0.55, 0.65, 0.75, 0.85, 0.95)
     max_dwell: float = 0.55
+    # additional turn-on candidates defined by the dwell (theta_off - d tau_r)
+    dwell_fractions: tuple[float, ...] = (0.35, 0.40, 0.45, 0.50)
 
 
 def _angle_candidates(drive: SRMDrive, n_rpm: float, i_ref: float, grid: AngleGrid):
@@ -35,8 +37,9 @@ def _angle_candidates(drive: SRMDrive, n_rpm: float, i_ref: float, grid: AngleGr
     adv_max = min(max(1.6 * adv_nominal, math.radians(2.0)), grid.max_dwell * mm.tau_r)
     for f in grid.off_fractions:
         theta_off = theta_ov + f * span
-        for adv in np.linspace(0.0, adv_max, grid.n_on):
-            theta_on = theta_ov - adv
+        ons = [theta_ov - adv for adv in np.linspace(0.0, adv_max, grid.n_on)]
+        ons += [theta_off - d * mm.tau_r for d in grid.dwell_fractions if d < grid.max_dwell]
+        for theta_on in ons:
             if theta_off - theta_on > grid.max_dwell * mm.tau_r:
                 theta_on = theta_off - grid.max_dwell * mm.tau_r
             yield theta_on, theta_off

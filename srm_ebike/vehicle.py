@@ -22,7 +22,8 @@ class EBikeSpec:
     rho_air: float = 1.2  # kg/m^3
     rotating_mass_factor: float = 1.05  # equivalent inertia of wheels/rotor
     gear_ratio: float = 8.0  # motor speed / wheel speed (single-stage planetary, ring/sun = 7)
-    gear_efficiency: float = 0.95
+    gear_efficiency: float = 0.95  # mesh (load-dependent) efficiency
+    gear_no_load_loss: float = 0.0  # churning/seal loss at base speed [W], ~ speed
     v_max_kmh: float = 25.0  # assist cut-off (EN 15194 / India CMVR e-cycle)
     rated_power: float = 250.0  # continuous rated motor output power [W]
     peak_power: float = 500.0  # short-term (hill / launch) motor output power [W]
@@ -65,11 +66,22 @@ def road_load_force(spec: EBikeSpec, v: float, grade: float = 0.0, accel: float 
     return f_roll + f_grade + f_aero + f_accel
 
 
+def gear_drag_torque(spec: EBikeSpec) -> float:
+    """Motor-side drag torque of the gear's load-independent loss [N m]."""
+    if spec.gear_no_load_loss <= 0:
+        return 0.0
+    return spec.gear_no_load_loss / spec.motor_speed(spec.v_max)
+
+
 def motor_torque_demand(spec: EBikeSpec, force: float) -> float:
-    """Motor shaft torque [N m] required to deliver tractive ``force`` (motoring)."""
+    """Motor shaft torque [N m] required to deliver tractive ``force`` (motoring).
+
+    Gear model: load-dependent mesh efficiency plus a load-independent drag
+    (no-load loss proportional to speed, i.e. a constant drag torque).
+    """
     t_wheel = force * spec.wheel_radius
     if t_wheel >= 0:
-        return t_wheel / (spec.gear_ratio * spec.gear_efficiency)
+        return t_wheel / (spec.gear_ratio * spec.gear_efficiency) + gear_drag_torque(spec)
     return t_wheel * spec.gear_efficiency / spec.gear_ratio
 
 
