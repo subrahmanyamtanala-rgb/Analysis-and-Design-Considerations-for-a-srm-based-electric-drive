@@ -64,7 +64,7 @@ headless Linux machine gmsh also needs `libglu1-mesa`.
 The results in the paper were produced with the exact versions in
 [`requirements-lock.txt`](requirements-lock.txt) (Python 3.11.15, NumPy 2.4.6,
 SciPy 1.17.1, Matplotlib 3.11.2, scikit-fem 12.0.2, gmsh 4.15.2, TeX Live 2023).
-The paper cites release tag `v2.0-rev2`, and [`CITATION.cff`](CITATION.cff)
+The paper cites commit `e7919ad` (code and data state of the second revision), and [`CITATION.cff`](CITATION.cff)
 gives the citation metadata. All intermediate data (FE tables in
 `results/fea/`, study outputs in `results/revision*/`) are committed, so the
 figures can be rebuilt without re-running the FE campaign.

@@ -190,8 +190,8 @@ head no longer contains a placeholder volume, issue or date. Reference~[20]
 now cites the author.
 
 \rev{22 (repository reproducibility)}
-\resp The code reference now cites a tagged release (v2.0-rev2) of the public
-repository. The repository contains:
+\resp The code reference now cites the exact commit (e7919ad) of the public
+repository that produced every result. The repository contains:
 \begin{itemize}[nosep]
 \item the source code, FE scripts and all result data (JSON, NPZ);
 \item a pinned environment (\texttt{requirements-lock.txt}: Python 3.11.15,
@@ -201,8 +201,8 @@ TeX Live 2023);
 \item step-by-step reproduction instructions in the README;
 \item 31 automated tests.
 \end{itemize}
-\emph{[Note to author: a Zenodo DOI can be minted from the GitHub release; add
-it to reference~[20] once created.]}
+\emph{[Note to author: create a tagged GitHub release from commit e7919ad and
+mint a Zenodo DOI from it, then add the DOI to reference~[20].]}
 
 \rev{23 (air-gap qualification)}
 \resp Kept. The tolerance allocation remains labeled ``assumed design budget,
@@ -234,7 +234,7 @@ coupled solve diverged. The solver now warm-starts only on the same mesh and
 falls back to a damped cold start.
 
 \bigskip
-All results can be regenerated from tag v2.0-rev2 of the repository
+All results can be regenerated from commit e7919ad of the repository
 (\texttt{scripts/run\_fea.py}, \texttt{run\_revision.py},
 \texttt{run\_revision2.py}).
 
