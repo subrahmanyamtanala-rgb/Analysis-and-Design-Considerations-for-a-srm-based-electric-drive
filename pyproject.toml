@@ -1,0 +1,16 @@
+[project]
+name = "srm-ebike"
+version = "0.1.0"
+description = "Analysis and design of a switched reluctance motor drive for an electric bike"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24", "scipy>=1.10", "matplotlib>=3.7"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[tool.setuptools]
+packages = ["srm_ebike"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
